@@ -1,0 +1,18 @@
+# SkyGuard — Python Dependencies
+# Core engine uses only the Python standard library.
+# Optional packages below enable extra features.
+
+# Optional: for CSV processing with pandas (faster for large files)
+pandas>=2.0
+
+# Optional: for advanced SHAP visualizations
+shap>=0.42
+
+# Optional: for LIME explanations
+lime>=0.2
+
+# Optional: for MQTT streaming support
+paho-mqtt>=1.6
+
+# Optional: for HTTP webhook testing
+requests>=2.31

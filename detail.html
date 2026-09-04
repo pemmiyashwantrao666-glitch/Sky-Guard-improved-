@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Anomaly Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="detail.css">
+</head>
+<body>
+  <div class="detail-page">
+    <!-- Header -->
+    <header class="detail-header">
+      <div class="detail-header-inner">
+        <div class="detail-header-left">
+          <button class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back to dashboard
+          </button>
+          <div>
+            <div class="detail-header-title">MUM-03 — Bandra Station</div>
+            <div class="detail-header-subtitle">Anomaly detected 30 August 2026 at 07:00 IST</div>
+          </div>
+        </div>
+        <div class="detail-header-actions">
+          <button class="btn btn-secondary">Export Report</button>
+          <button class="btn btn-primary">Schedule Maintenance</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="detail-main">
+      <div class="detail-content">
+        <!-- Status Banner -->
+        <div class="status-banner">
+          <div class="status-banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="status-banner-content">
+            <div class="status-banner-label">Critical Anomaly</div>
+            <div class="status-banner-title">Multi-sensor fault — temperature, humidity, and pressure inconsistent</div>
+            <div class="status-banner-description">
+              Temperature reading of 46.6°C is 26σ above the seasonal expectation for this time of day. Humidity at 97% and pressure deviation create a physics conflict: the implied dewpoint (46°C) equals the reported temperature, which is meteorologically implausible. Neighbouring stations report normal conditions (26–28°C, 72–76% RH).
+            </div>
+            <div class="status-banner-actions">
+              <button class="btn btn-primary">View Corrected Data</button>
+              <button class="btn btn-secondary">Mark as False Positive</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidence Grid -->
+        <div class="content-section">
+          <div class="section-title">Observed Readings</div>
+          <div class="section-subtitle">Values reported by the sensor vs. expected range</div>
+          <div class="evidence-grid">
+            <div class="evidence-card">
+              <div class="evidence-label">Temperature</div>
+              <div class="evidence-value danger">46.6</div>
+              <div class="evidence-unit">°C</div>
+              <div class="evidence-context">Expected: 26.2°C (seasonal mean)</div>
+            </div>
+            <div class="evidence-card">
+              <div class="evidence-label">Humidity</div>
+              <div class="evidence-value warning">97</div>
+              <div class="evidence-unit">%</div>
+              <div class="evidence-context">Expected: 73% (seasonal mean)</div>
+            </div>
+            <div class="evidence-card">
+              <div class="evidence-label">Pressure</div>
+              <div class="evidence-value">1007</div>
+              <div class="evidence-unit">hPa</div>
+              <div class="evidence-context">Expected: 1008 hPa (±3)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI-Assisted Insight -->
+        <div class="ai-insight">
+          <div class="ai-insight-header">
+            <div class="ai-insight-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                <path d="M12 2a10 10 0 0 1 10 10"/>
+                <circle cx="12" cy="12" r="6"/>
+              </svg>
+            </div>
+            <div class="ai-insight-label">AI-Assisted Insight</div>
+          </div>
+          <div class="ai-insight-title">Sensor fault — probable probe degradation or wiring issue</div>
+          <p class="ai-insight-description">
+            The combination of extreme temperature, high humidity, and normal pressure points to a temperature and humidity probe fault rather than a real weather event. The dewpoint physics check (L4) confirms the readings are internally inconsistent.
+          </p>
+
+          <div class="ai-confidence">
+            <span class="ai-confidence-label">AI Confidence</span>
+            <div class="ai-confidence-bar">
+              <div class="ai-confidence-fill" style="width: 95%;"></div>
+            </div>
+            <span class="ai-confidence-value">95%</span>
+          </div>
+
+          <div class="ai-sources">
+            Sources: L2 temporal (26.0σ), L3 spatial (12.6σ vs 5 neighbours), L4 physics (dewpoint conflict)
+          </div>
+
+          <div class="ai-actions">
+            <button class="btn btn-primary">Accept AI Analysis</button>
+            <button class="btn btn-secondary">Request Human Review</button>
+            <button class="btn btn-ghost">Override with Manual Value</button>
+          </div>
+        </div>
+
+        <!-- Layer Breakdown -->
+        <div class="content-section">
+          <div class="section-title">Detection Breakdown</div>
+          <div class="section-subtitle">Which layers contributed to this verdict</div>
+          <div class="layer-breakdown">
+            <div class="layer-row">
+              <div class="layer-name">L1 Physical</div>
+              <div class="layer-bar">
+                <div class="layer-fill" style="width: 100%;"></div>
+              </div>
+              <div class="layer-status layer-status-triggered">Triggered</div>
+            </div>
+            <div class="layer-row">
+              <div class="layer-name">L2 Temporal</div>
+              <div class="layer-bar">
+                <div class="layer-fill" style="width: 100%;"></div>
+              </div>
+              <div class="layer-status layer-status-triggered">Triggered</div>
+            </div>
+            <div class="layer-row">
+              <div class="layer-name">L3 Spatial</div>
+              <div class="layer-bar">
+                <div class="layer-fill" style="width: 100%;"></div>
+              </div>
+              <div class="layer-status layer-status-triggered">Triggered</div>
+            </div>
+            <div class="layer-row">
+              <div class="layer-name">L4 Physics</div>
+              <div class="layer-bar">
+                <div class="layer-fill" style="width: 100%;"></div>
+              </div>
+              <div class="layer-status layer-status-triggered">Triggered</div>
+            </div>
+            <div class="layer-row">
+              <div class="layer-name">L5 Explain</div>
+              <div class="layer-bar">
+                <div class="layer-fill" style="width: 95%;"></div>
+              </div>
+              <div class="layer-status layer-status-triggered">Confidence 95%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidence List -->
+        <div class="content-section">
+          <div class="section-title">Evidence</div>
+          <div class="section-subtitle">Human-readable reasons from each detection layer</div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div style="padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius-md); border-left: 3px solid var(--danger);">
+              <div style="font-size: var(--text-sm); font-weight: 600; color: var(--danger); margin-bottom: var(--space-1);">L2 Temporal</div>
+              <div style="font-size: var(--text-sm); color: var(--text-secondary);">Temperature deviates 26.0σ from seasonal expectation (26.3°C)</div>
+            </div>
+            <div style="padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius-md); border-left: 3px solid var(--danger);">
+              <div style="font-size: var(--text-sm); font-weight: 600; color: var(--danger); margin-bottom: var(--space-1);">L3 Spatial</div>
+              <div style="font-size: var(--text-sm); color: var(--text-secondary);">Temperature 46.6°C disagrees with 5 neighbours (avg 26.2°C, 12.6σ)</div>
+            </div>
+            <div style="padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius-md); border-left: 3px solid var(--warning);">
+              <div style="font-size: var(--text-sm); font-weight: 600; color: var(--warning); margin-bottom: var(--space-1);">L4 Physics</div>
+              <div style="font-size: var(--text-sm); color: var(--text-secondary);">Physics conflict: 47°C with 97% RH implausible (dewpoint 46°C >= T)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="content-section">
+          <div class="section-title">Activity Timeline</div>
+          <div class="section-subtitle">History of this anomaly</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Anomaly detected</div>
+                <div class="timeline-description">SkyGuard AI flagged MUM-03 as ANOMALY with 95% confidence. Alert sent to system administrators.</div>
+                <div class="timeline-time">30 August 2026, 07:00 IST</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot warning"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Awaiting review</div>
+                <div class="timeline-description">Anomaly report #SKG-2026-0892 created. Assigned to Priya Sharma for review.</div>
+                <div class="timeline-time">30 August 2026, 07:02 IST</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot success"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Corrected value computed</div>
+                <div class="timeline-description">AI imputed corrected temperature: 26.2°C using seasonal mean + neighbour median.</div>
+                <div class="timeline-time">30 August 2026, 07:00 IST</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="detail-sidebar">
+        <!-- Station Info -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">Station Information</div>
+          <div class="info-row">
+            <span class="info-label">Station ID</span>
+            <span class="info-value">MUM-03</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-value">Bandra Station</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-value">19.055°N, 72.840°E</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Installed</span>
+            <span class="info-value">12 March 2023</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Last Maintenance</span>
+            <span class="info-value">15 July 2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Health Score</span>
+            <span class="info-value" style="color: var(--danger);">79 / 100</span>
+          </div>
+        </div>
+
+        <!-- Recommended Actions -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">Recommended Actions</div>
+          <div class="recommendation-list">
+            <div class="recommendation-item">
+              <svg class="recommendation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <div class="recommendation-text">Recalibrate temperature and humidity probes before 14:00 IST today.</div>
+            </div>
+            <div class="recommendation-item">
+              <svg class="recommendation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <div class="recommendation-text">Inspect sensor cable and ADC for water ingress or corrosion.</div>
+            </div>
+            <div class="recommendation-item">
+              <svg class="recommendation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <div class="recommendation-text">Use corrected value (26.2°C) for downstream forecast models until resolved.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Owner -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">Assigned To</div>
+          <div class="info-row">
+            <span class="info-label">Engineer</span>
+            <span class="info-value">Priya Sharma</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Region</span>
+            <span class="info-value">Mumbai</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Priority</span>
+            <span class="info-value" style="color: var(--danger);">High</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

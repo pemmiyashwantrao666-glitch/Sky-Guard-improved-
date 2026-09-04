@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Report Anomaly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="workflow.css">
+</head>
+<body>
+  <div class="workflow-page">
+    <!-- Header -->
+    <header class="workflow-header">
+      <div class="workflow-header-inner">
+        <div class="workflow-header-left">
+          <button class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back to dashboard
+          </button>
+          <div>
+            <div class="workflow-header-title">Report an Anomaly</div>
+            <div class="workflow-header-subtitle">Step 2 of 4 — Station details &amp; observations</div>
+          </div>
+        </div>
+        <div class="workflow-header-actions">
+          <button class="btn btn-secondary">Save draft</button>
+          <button class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="stepper-inner">
+        <div class="stepper-steps">
+          <div class="stepper-step completed">
+            <div class="stepper-circle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="stepper-label">Select Station</div>
+          </div>
+          <div class="stepper-step active">
+            <div class="stepper-circle">2</div>
+            <div class="stepper-label">Observations</div>
+          </div>
+          <div class="stepper-step">
+            <div class="stepper-circle">3</div>
+            <div class="stepper-label">Review</div>
+          </div>
+          <div class="stepper-step">
+            <div class="stepper-circle">4</div>
+            <div class="stepper-label">Submit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="workflow-main">
+      <div class="workflow-inner">
+        <!-- Form -->
+        <div class="form-card">
+          <div class="form-section-title">Station &amp; Observation Details</div>
+          <p class="form-section-description">
+            Provide the observed anomaly details. All fields marked with an asterisk are required. Your report will be reviewed by a meteorologist within 2 business days.
+          </p>
+
+          <form id="anomalyForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label form-label-required" for="station">Weather Station</label>
+                <select class="select" id="station" required>
+                  <option value="">Select a station</option>
+                  <option value="MUM-03">MUM-03 — Bandra Station</option>
+                  <option value="MUM-01">MUM-01 — Colaba Observatory</option>
+                  <option value="DEL-02">DEL-02 — Palam Airport</option>
+                  <option value="BLR-01">BLR-01 — Kempegowda Airport</option>
+                  <option value="CHE-01">CHE-01 — Nungambakkam</option>
+                </select>
+                <div class="form-hint">Choose the station where the anomaly was observed</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label form-label-required" for="date">Observation Date</label>
+                <input type="date" class="input" id="date" value="2026-08-30" required>
+                <div class="form-hint">Date when the anomaly was first noticed</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label form-label-required" for="temperature">Temperature (°C)</label>
+                <input type="number" class="input" id="temperature" placeholder="e.g. 46.6" step="0.1" required>
+                <div class="form-hint">Enter the reported temperature reading</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="humidity">Humidity (%)</label>
+                <input type="number" class="input" id="humidity" placeholder="e.g. 97" step="1" min="0" max="100">
+                <div class="form-hint">Relative humidity if available</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="pressure">Pressure (hPa)</label>
+                <input type="number" class="input" id="pressure" placeholder="e.g. 1005" step="0.1">
+                <div class="form-hint">Atmospheric pressure reading</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label form-label-required" for="category">Anomaly Category</label>
+                <select class="select" id="category" required>
+                  <option value="">Select category</option>
+                  <option value="spike">Sudden Spike</option>
+                  <option value="drift">Gradual Drift</option>
+                  <option value="frozen">Frozen / Stuck Value</option>
+                  <option value="comm_loss">Communication Loss</option>
+                  <option value="pressure_drop">Pressure Drop</option>
+                  <option value="other">Other / Multiple</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-6);">
+              <label class="form-label form-label-required" for="description">Description</label>
+              <textarea class="textarea" id="description" placeholder="Describe what you observed. Include any relevant context about weather conditions, nearby events, or sensor maintenance history..." required></textarea>
+              <div class="form-hint">Minimum 20 characters. Be as specific as possible.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--space-6);">
+              <label class="form-label">Supporting Evidence</label>
+              <div class="file-upload" role="button" tabindex="0" aria-label="Upload files">
+                <div class="file-upload-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="file-upload-text">Drop files here or click to browse</div>
+                <div class="file-upload-hint">CSV, JSON, images up to 10MB each</div>
+              </div>
+            </div>
+
+            <div class="autosave">
+              <span class="autosave-dot"></span>
+              All changes saved
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary">Save Draft</button>
+              <button type="button" class="btn btn-primary">Continue to Review</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Guidance Panel -->
+        <aside class="guidance-panel">
+          <div class="guidance-title">Need help?</div>
+          <p class="guidance-text">
+            This form lets you report sensor anomalies you've observed in the field. Our AI will cross-check your observations against baseline data from neighbouring stations.
+          </p>
+          <ul class="guidance-list">
+            <li>Temperature above 60°C or below -10°C is automatically flagged</li>
+            <li>Frozen values are detected when a reading stays unchanged for 8+ samples</li>
+            <li>Communication errors appear as missing or NaN values</li>
+            <li>Pressure drops without wind/rain response are physics-conflict anomalies</li>
+          </ul>
+          <div class="guidance-divider"></div>
+          <div class="guidance-contact">
+            <div class="guidance-contact-title">Contact support</div>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">
+              If you're unsure about a reading, call the IMD helpdesk:
+            </p>
+            <a href="tel:+911142371234" style="color: var(--accent); font-weight: 600;">+91 11 4237 1234</a>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-2);">
+              Available 24/7 during monsoon season (June — September)
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

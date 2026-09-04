@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — 3D Weather Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <img class="nav-logo-icon" src="skyguard-app/public/skyguard-mark.svg" alt="SkyGuard AI">
+      <span>SkyGuard AI</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="login.html">Sign In</a>
+    </div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-ghost">Log In</a>
+      <a href="login.html?mode=signup" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span>Live Monitoring Active</span>
+      </div>
+      <h1>
+        Weather Intelligence<br>
+        <span class="gradient">Reimagined in 3D</span>
+      </h1>
+      <p class="hero-description">
+        Monitor 128+ weather stations across India with real-time anomaly detection. 
+        Our AI engine processes millions of data points to keep you ahead of extreme weather events.
+      </p>
+      <div class="hero-cta">
+        <a href="dashboard.html" class="btn btn-primary">Launch Dashboard →</a>
+        <a href="#features" class="btn btn-ghost">Explore Features</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="statStations">128</span>
+          <span class="hero-stat-label">Active Stations</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="statAnomalies">3</span>
+          <span class="hero-stat-label">Active Alerts</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="statUptime">99.7%</span>
+          <span class="hero-stat-label">Network Uptime</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D Globe -->
+    <div class="globe-container">
+      <canvas id="globe-canvas"></canvas>
+      
+      <!-- Live Stats Overlay -->
+      <div class="live-panel">
+        <div class="live-panel-title">
+          <span class="hero-badge-dot"></span>
+          Live Status
+        </div>
+        <div class="live-panel-stat">
+          <span class="live-panel-label">Mumbai</span>
+          <span class="live-panel-value good">Normal</span>
+        </div>
+        <div class="live-panel-stat">
+          <span class="live-panel-label">Delhi</span>
+          <span class="live-panel-value warn">Warning</span>
+        </div>
+        <div class="live-panel-stat">
+          <span class="live-panel-label">Bangalore</span>
+          <span class="live-panel-value good">Normal</span>
+        </div>
+        <div class="live-panel-stat">
+          <span class="live-panel-label">Chennai</span>
+          <span class="live-panel-value danger">Critical</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="globe-overlay">
+        <div class="globe-legend">
+          <span class="legend-dot normal"></span>
+          <span>Normal</span>
+        </div>
+        <div class="globe-legend">
+          <span class="legend-dot warning"></span>
+          <span>Warning</span>
+        </div>
+        <div class="globe-legend">
+          <span class="legend-dot critical"></span>
+          <span>Critical</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-tag">◆ CAPABILITIES</div>
+      <h2 class="section-title">Intelligent Anomaly Detection</h2>
+      <p class="section-subtitle">
+        Our 5-layer AI engine combines physical modeling, temporal learning, and spatial analysis 
+        to detect anomalies that other systems miss.
+      </p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3 class="feature-title">5-Layer AI Engine</h3>
+        <p class="feature-desc">Physical plausibility, temporal learning, spatial consistency, multivariate physics, and explainable AI working in concert.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Real-Time Processing</h3>
+        <p class="feature-desc">O(1) per-reading inference with sub-second alerting. Process millions of data points without breaking a sweat.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3 class="feature-title">Explainable Results</h3>
+        <p class="feature-desc">Every anomaly comes with evidence, root cause classification, and recommended actions you can trust.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3 class="feature-title">Interactive 3D Globe</h3>
+        <p class="feature-desc">Visualize your entire network on an interactive 3D globe with real-time status updates and anomaly highlighting.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3 class="feature-title">Sensor Health AI</h3>
+        <p class="feature-desc">Predict maintenance needs before failures occur. Track degradation, uptime, and health scores across all stations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Corrected Data</h3>
+        <p class="feature-desc">Automatic imputation using seasonal baselines, neighbor medians, and EWMA fallback for uninterrupted forecasting.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-box">
+      <h2 class="cta-title">Ready to Transform Your Weather Monitoring?</h2>
+      <p class="cta-desc">Join meteorologists and researchers who trust SkyGuard AI for critical weather intelligence.</p>
+      <a href="login.html?mode=signup" class="btn btn-primary" style="font-size:1.1rem;padding:1rem 2rem;">Start Monitoring Now →</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>© 2026 SkyGuard AI · Intelligent Weather Station Anomaly Detection · Built with 💙 for meteorologists</footer>
+
+  <script src="landing.js"></script>
+</body>
+</html>
+
+    /* Radar visual */
+    .radar-wrap {
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+    .radar {
+      width: min(420px, 80vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      position: relative;
+      background:
+        radial-gradient(circle, rgba(0, 212, 255, 0.06), transparent 70%),
+        repeating-radial-gradient(circle, transparent 0 54px, rgba(0, 212, 255, 0.14) 54px 55px);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 60px rgba(0, 212, 255, 0.12), inset 0 0 60px rgba(0, 212, 255, 0.06);
+    }
+    .radar::before,
+    .radar::after {
+      content: "";
+      position: absolute;
+      background: rgba(0, 212, 255, 0.18);
+    }
+    .radar::before {
+      width: 100%;
+      height: 1px;
+      top: 50%;
+      left: 0;
+    }
+    .radar::after {
+      height: 100%;
+      width: 1px;
+      left: 50%;
+      top: 0;
+    }
+    .radar-sweep {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(0, 212, 255, 0.35), transparent 70deg, transparent);
+      animation: radarSweep 4s linear infinite;
+    }
+    .radar-blip {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      animation: blink 1.6s infinite;
+    }
+    .radar-blip.warn { background: var(--warn); box-shadow: 0 0 12px var(--warn); }
+    .radar-blip.ok { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+
+    /* ---------- Sections ---------- */
+    section.block {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 5.5rem 3rem;
+    }
+    .section-head { margin-bottom: 3rem; }
+    .section-head h2 {
+      font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+      font-weight: 800;
+      margin-top: 0.8rem;
+    }
+    .section-head p {
+      color: var(--text-dim);
+      margin-top: 0.7rem;
+      max-width: 44rem;
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.6rem;
+    }
+    .feature-card {
+      padding: 1.9rem;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0, 212, 255, 0.6);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 212, 255, 0.14);
+    }
+    .feature-card .f-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-size: 1.45rem;
+      margin-bottom: 1.15rem;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      transition: transform 0.35s ease, background 0.35s ease;
+    }
+    .feature-card:hover .f-icon {
+      transform: scale(1.12) rotate(-6deg);
+      background: rgba(255, 105, 1, 0.14);
+      border-color: var(--accent);
+    }
+    .feature-card h3 { font-size: 1.12rem; margin-bottom: 0.55rem; }
+    .feature-card p { color: var(--text-dim); font-size: 0.92rem; line-height: 1.65; }
+
+    /* ---------- Workflow ---------- */
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.4rem;
+      position: relative;
+    }
+    .step {
+      padding: 1.7rem;
+      position: relative;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    .step:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(180deg, var(--accent-2), transparent);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .step h4 { font-size: 1.02rem; margin-bottom: 0.45rem; }
+    .step p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.6; }
+    .step-arrow {
+      position: absolute;
+      right: -1.15rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3rem;
+      color: var(--accent-2);
+      z-index: 2;
+      animation: slideRight 1s ease infinite alternate;
+    }
+
+    /* ---------- CTA ---------- */
+    .cta-panel {
+      max-width: 1400px;
+      margin: 0 auto 5rem;
+      padding: 4rem 3rem;
+      text-align: center;
+      border-radius: 22px;
+    }
+    .cta-panel h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin-bottom: 0.9rem; }
+    .cta-panel p { color: var(--text-dim); margin-bottom: 2rem; }
+
+    footer {
+      border-top: 1px solid rgba(90, 140, 255, 0.15);
+      padding: 2rem 3rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 6.5rem; text-align: center; }
+      .hero p.lead { margin: 0 auto 2.2rem; }
+      .hero-cta, .hero-stats { justify-content: center; }
+      .nav-links { display: none; }
+      .site-header { padding: 0.9rem 1.4rem; }
+      section.block, .cta-panel { padding-left: 1.4rem; padding-right: 1.4rem; }
+      .step-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ================= HEADER PANEL ================= -->
+  <header class="site-header">
+    <a href="index.html" class="logo">
+      <img class="logo-mark" src="skyguard-app/public/skyguard-mark.svg" alt="SkyGuard AI">
+      <span>Sky<span class="gradient-text">Guard AI</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#tech">Technology</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a href="login.html" class="btn btn-ghost">Login</a>
+      <a href="login.html?mode=signup" class="btn btn-primary">Sign Up Free</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div>
+      <div class="tag rise" style="animation-delay: 0.1s">
+        <span class="dot"></span> REAL-TIME WEATHER STATION INTELLIGENCE
+      </div>
+      <h1 class="rise" style="animation-delay: 0.22s">
+        Detect Weather <span class="gradient-text">Anomalies</span><br>
+        Before They Become Disasters
+      </h1>
+      <p class="lead rise" style="animation-delay: 0.34s">
+        SkyGuard monitors every weather station across your region with a live
+        interactive map, streaming sensor telemetry, and machine-learning anomaly
+        detection — sudden temperature spikes, pressure drops, and storm precursors
+        flagged the moment they happen.
+      </p>
+      <div class="hero-cta rise" style="animation-delay: 0.46s">
+        <a href="login.html?mode=signup" class="btn btn-primary">🚀 Get Started — It's Free</a>
+        <a href="#features" class="btn btn-ghost">Explore Features</a>
+      </div>
+      <div class="hero-stats rise" style="animation-delay: 0.58s">
+        <div class="stat"><b data-count="128">0</b><span>Stations Online</span></div>
+        <div class="stat"><b data-count="42">0</b><span>Anomalies Caught</span></div>
+        <div class="stat"><b data-count="99">0</b><span>% Uptime</span></div>
+      </div>
+    </div>
+
+    <div class="radar-wrap rise-big" style="animation-delay: 0.5s">
+      <div class="radar">
+        <div class="radar-sweep"></div>
+        <span class="radar-blip" style="top: 22%; left: 58%;"></span>
+        <span class="radar-blip warn" style="top: 40%; left: 30%;"></span>
+        <span class="radar-blip ok" style="top: 62%; left: 66%;"></span>
+        <span class="radar-blip ok" style="top: 74%; left: 42%;"></span>
+        <span class="radar-blip" style="top: 34%; left: 74%;"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="block" id="features">
+    <div class="section-head reveal">
+      <div class="tag"><span class="dot"></span> CAPABILITIES</div>
+      <h2>Everything You Need to <span class="gradient-text">Watch the Sky</span></h2>
+      <p>From live station mapping to AI-driven anomaly scoring — built for meteorologists, researchers, and disaster-response teams.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.05s">
+        <div class="f-icon">🗺️</div>
+        <h3>Interactive Station Map</h3>
+        <p>Leaflet-powered map with color-coded station markers, anomaly heat rings, click-to-inspect popups, and live sensor overlays.</p>
+      </div>
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.15s">
+        <div class="f-icon">📡</div>
+        <h3>Live Telemetry Stream</h3>
+        <p>Temperature, humidity, pressure, wind and rainfall update every second with animated sparklines per station.</p>
+      </div>
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.25s">
+        <div class="f-icon">🧠</div>
+        <h3>AI Anomaly Engine</h3>
+        <p>Z-score + rolling-average detection flags sudden spikes, sensor drift, and storm precursors with severity scoring.</p>
+      </div>
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.35s">
+        <div class="f-icon">🔔</div>
+        <h3>Instant Alerts</h3>
+        <p>Threshold and ML alerts with severity levels, delivered to the dashboard alert feed and browser notifications.</p>
+      </div>
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.45s">
+        <div class="f-icon">📊</div>
+        <h3>Analytics & Charts</h3>
+        <p>24-hour history charts, anomaly frequency breakdowns, and station health rankings in a rich analytics panel.</p>
+      </div>
+      <div class="feature-card border-anim spotlight reveal" style="animation-delay: 0.55s">
+        <div class="f-icon">⚙️</div>
+        <h3>Custom Thresholds</h3>
+        <p>Tune detection sensitivity per-parameter, define region watchlists, and export anomaly reports as CSV.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WORKFLOW ================= -->
+  <section class="block" id="workflow">
+    <div class="section-head reveal">
+      <div class="tag"><span class="dot"></span> HOW IT WORKS</div>
+      <h2>Detection <span class="gradient-text">Workflow</span></h2>
+      <p>Four stages from raw sensor data to actionable alert — fully automated, running continuously across all stations.</p>
+    </div>
+    <div class="workflow">
+      <div class="step border-dash reveal" style="transition-delay: 0.05s">
+        <span class="step-num">01</span>
+        <h4>📡 Ingest</h4>
+        <p>Weather stations stream readings every second into the ingestion pipeline.</p>
+        <span class="step-arrow">➜</span>
+      </div>
+      <div class="step border-dash reveal" style="transition-delay: 0.15s">
+        <span class="step-num">02</span>
+        <h4>🧹 Clean</h4>
+        <p>Readings are validated, de-noised and normalized against station baselines.</p>
+        <span class="step-arrow">➜</span>
+      </div>
+      <div class="step border-dash reveal" style="transition-delay: 0.25s">
+        <span class="step-num">03</span>
+        <h4>🧠 Detect</h4>
+        <p>The anomaly engine scores each reading using z-scores and rolling statistics.</p>
+        <span class="step-arrow">➜</span>
+      </div>
+      <div class="step border-dash reveal" style="transition-delay: 0.35s">
+        <span class="step-num">04</span>
+        <h4>🚨 Alert</h4>
+        <p>Anomalies are ranked by severity and pushed to the map, feed and alerts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TECH ================= -->
+  <section class="block" id="tech">
+    <div class="section-head reveal">
+      <div class="tag"><span class="dot"></span> TECHNOLOGY</div>
+      <h2>Built With <span class="gradient-text">Modern Tech</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card border-glow hover-lift reveal">
+        <div class="f-icon">🌐</div>
+        <h3>Leaflet Maps</h3>
+        <p>Open-source interactive mapping with smooth pan/zoom and rich GeoJSON overlays.</p>
+      </div>
+      <div class="feature-card border-glow hover-lift reveal">
+        <div class="f-icon">⚡</div>
+        <h3>Vanilla JS Engine</h3>
+        <p>Zero-framework real-time engine — lightweight, fast, and dependency-free.</p>
+      </div>
+      <div class="feature-card border-glow hover-lift reveal">
+        <div class="f-icon">🎨</div>
+        <h3>CSS Animations</h3>
+        <p>Rise-in entrances, conic border animations, spotlight hovers and custom cursor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="cta-panel border-anim reveal" id="contact">
+    <h2>Ready to Catch the Next <span class="gradient-text">Anomaly?</span></h2>
+    <p>Create a free account and launch the live dashboard in seconds.</p>
+    <a href="login.html?mode=signup" class="btn btn-primary">Create Your Account →</a>
+  </section>
+
+  <footer>
+    © 2026 SkyGuard AI · Anomaly Detection Platform · Crafted for meteorologists
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

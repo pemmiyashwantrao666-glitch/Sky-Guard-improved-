@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img class="sidebar-logo-icon" src="skyguard-app/public/skyguard-mark.svg" alt="SkyGuard AI">
+        <span class="sidebar-logo-text">SkyGuard <small>AI</small></span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Overview</div>
+        <button class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Dashboard
+        </button>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19c0-3.037-2.463-5.5-5.5-5.5S6.5 15.963 6.5 19"/>
+            <path d="M17.5 19a5.5 5.5 0 0 1-11 0"/>
+            <path d="M12 13V6"/>
+            <path d="M8 9l4-3 4 3"/>
+          </svg>
+          Stations
+        </button>
+
+        <div class="sidebar-section">Workflows</div>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Report Anomaly
+        </button>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload Data
+        </button>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Analytics
+        </button>
+
+        <div class="sidebar-section">Insights</div>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7 3 9 3 9h6s3-2 3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Alerts
+          <span class="badge badge-accent" style="margin-left: auto;">3</span>
+        </button>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Reports
+        </button>
+
+        <div class="sidebar-section">Support</div>
+        <button class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Help Centre
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">PS</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Priya Sharma</div>
+            <div class="sidebar-user-role">System Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="topbar-greeting">
+          <h1>Good morning, Priya</h1>
+          <p>Here's what's happening across your weather station network today.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-date" id="currentDate">30 August 2026</div>
+          <div class="status-indicator" id="systemStatus">
+            <span class="status-dot"></span>
+            <span id="statusText">All systems operational</span>
+          </div>
+          <button class="btn btn-primary btn-sm">+ New Report</button>
+        </div>
+      </div>
+
+      <!-- Anomaly Status Panel -->
+      <div class="anomaly-status-panel hidden" id="anomalyPanel">
+        <div class="anomaly-panel-header">
+          <div class="anomaly-status-badge" id="statusBadge">
+            <span class="status-icon">⚠</span>
+            <span class="status-label" id="anomalyStatusText">ANOMALY DETECTED</span>
+          </div>
+          <div class="anomaly-panel-actions">
+            <button class="btn btn-outline btn-sm" id="viewDetailsBtn">View Details</button>
+            <button class="anomaly-panel-close" id="closeAnomalyPanel" title="Dismiss">×</button>
+          </div>
+        </div>
+        <div class="anomaly-panel-body">
+          <div class="anomaly-metrics-row">
+            <div class="anomaly-metric">
+              <div class="anomaly-metric-label">Anomaly Score</div>
+              <div class="anomaly-metric-value" id="anomalyScore">0.94</div>
+            </div>
+            <div class="anomaly-metric">
+              <div class="anomaly-metric-label">Confidence</div>
+              <div class="anomaly-metric-value" id="confidenceValue">96%</div>
+            </div>
+            <div class="anomaly-metric">
+              <div class="anomaly-metric-label">Severity</div>
+              <div class="anomaly-metric-value severity-critical" id="severityValue">CRITICAL</div>
+            </div>
+          </div>
+          <div class="anomaly-detail-section">
+            <div class="anomaly-detail-label">Probable Cause</div>
+            <div class="anomaly-detail-text" id="probableCause">Sensor Fault / Data Corruption</div>
+          </div>
+          <div class="anomaly-detail-section">
+            <div class="anomaly-detail-label">Evidence</div>
+            <ul class="anomaly-evidence-list" id="evidenceList">
+              <li class="evidence-item">
+                <span class="evidence-check">✓</span>
+                <span class="evidence-text">Temperature deviation: <strong>Very High</strong></span>
+              </li>
+              <li class="evidence-item">
+                <span class="evidence-check">✓</span>
+                <span class="evidence-text">Temporal inconsistency: <strong>High</strong></span>
+              </li>
+              <li class="evidence-item">
+                <span class="evidence-check">✓</span>
+                <span class="evidence-text">Multivariate inconsistency: <strong>High</strong></span>
+              </li>
+              <li class="evidence-item">
+                <span class="evidence-check">✓</span>
+                <span class="evidence-text">Neighboring stations: <strong>Normal</strong></span>
+              </li>
+              <li class="evidence-item">
+                <span class="evidence-check">✓</span>
+                <span class="evidence-text">Historical pattern mismatch: <strong>High</strong></span>
+              </li>
+            </ul>
+          </div>
+          <div class="anomaly-detail-section">
+            <div class="anomaly-detail-label">Sensor Health</div>
+            <div class="sensor-health-status" id="sensorHealth">
+              <div class="health-indicator degraded"></div>
+              <span class="health-text">DEGRADED</span>
+            </div>
+          </div>
+          <div class="anomaly-detail-section">
+            <div class="anomaly-detail-label">Recommended Action</div>
+            <div class="anomaly-detail-text recommended-action" id="recommendedAction">Inspect temperature sensor / verify communication</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Card -->
+      <div class="priority-card">
+        <div class="priority-label">Priority Action Required</div>
+        <h2 class="priority-title">MUM-03 — Multi-sensor fault detected at Bandra Station</h2>
+        <p class="priority-description">
+          Temperature reading of 46.6°C is 26σ above seasonal expectation. Humidity and pressure also inconsistent. Neighbouring stations report normal conditions (26–28°C). AI recommends recalibrating RH and T probes before 14:00 IST.
+        </p>
+        <div class="priority-meta">
+          <div class="priority-meta-item">
+            <span class="priority-meta-label">Confidence</span>
+            <span class="priority-meta-value">95%</span>
+          </div>
+          <div class="priority-meta-item">
+            <span class="priority-meta-label">Root Cause</span>
+            <span class="priority-meta-value" style="font-size: var(--text-xl);">Sensor Fault</span>
+          </div>
+          <div class="priority-meta-item">
+            <span class="priority-meta-label">Station Health</span>
+            <span class="priority-meta-value" style="font-size: var(--text-xl);">79/100</span>
+          </div>
+          <div class="priority-meta-item">
+            <span class="priority-meta-label">Corrected Value</span>
+            <span class="priority-meta-value" style="font-size: var(--text-xl);">26.2°C</span>
+          </div>
+        </div>
+        <div class="priority-actions">
+          <button class="btn btn-primary">View Full Analysis</button>
+          <button class="btn btn-secondary" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: var(--off-white);">Schedule Maintenance</button>
+          <button class="btn btn-ghost" style="color: rgba(247,244,238,0.7);">Dismiss</button>
+        </div>
+      </div>
+
+      <!-- Analytics Grid -->
+      <div class="analytics-grid">
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Temperature — Last 24 Hours</div>
+              <div class="chart-subtitle">Network average across 24 active stations</div>
+            </div>
+            <select class="select" style="width: auto;">
+              <option>Temperature</option>
+              <option>Humidity</option>
+              <option>Pressure</option>
+            </select>
+          </div>
+          <div class="chart-container">
+            <div class="chart-placeholder">
+              <div class="chart-bars">
+                <div class="chart-bar" style="height: 55%;"></div>
+                <div class="chart-bar" style="height: 48%;"></div>
+                <div class="chart-bar" style="height: 52%;"></div>
+                <div class="chart-bar" style="height: 60%;"></div>
+                <div class="chart-bar" style="height: 75%;"></div>
+                <div class="chart-bar" style="height: 88%;"></div>
+                <div class="chart-bar" style="height: 95%;"></div>
+                <div class="chart-bar" style="height: 92%;"></div>
+                <div class="chart-bar" style="height: 85%;"></div>
+                <div class="chart-bar" style="height: 78%;"></div>
+                <div class="chart-bar" style="height: 70%;"></div>
+                <div class="chart-bar" style="height: 65%;"></div>
+              </div>
+              <div class="chart-labels">
+                <span class="chart-label">00:00</span>
+                <span class="chart-label">06:00</span>
+                <span class="chart-label">12:00</span>
+                <span class="chart-label">18:00</span>
+                <span class="chart-label">Now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Station Health</div>
+              <div class="chart-subtitle">Sensors needing attention</div>
+            </div>
+          </div>
+          <div class="chart-container" style="display: flex; flex-direction: column; gap: var(--space-4);">
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+                <span>MUM-03 Bandra</span>
+                <span style="color: var(--danger); font-weight: 600;">Critical</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 79%; background: var(--danger);"></div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+                <span>DEL-02 Palam</span>
+                <span style="color: var(--warning); font-weight: 600;">Warning</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 88%; background: var(--warning);"></div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+                <span>BLR-03 Whitefield</span>
+                <span style="color: var(--success); font-weight: 600;">Good</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 95%;"></div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+                <span>CHE-01 Nungambakkam</span>
+                <span style="color: var(--success); font-weight: 600;">Good</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 92%;"></div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+                <span>KOL-02 Dum Dum</span>
+                <span style="color: var(--success); font-weight: 600;">Good</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 97%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="bottom-grid">
+        <!-- Recent Activity -->
+        <div class="activity-panel">
+          <div class="panel-title">Recent Activity</div>
+          <div class="panel-subtitle">Latest detections and actions across your network</div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">MUM-03 — Multi-sensor fault</div>
+                <div class="activity-description">Temperature 46.6°C, humidity 97%, pressure anomaly. Dewpoint physics conflict detected.</div>
+                <div class="activity-meta">
+                  <span class="activity-time">12 minutes ago</span>
+                  <span class="activity-status activity-status-pending">Pending review</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">DEL-02 — Pressure drift detected</div>
+                <div class="activity-description">Gradual pressure increase of 2.3 hPa over 6 hours. EWMA baseline tracking slowly.</div>
+                <div class="activity-meta">
+                  <span class="activity-time">1 hour ago</span>
+                  <span class="activity-status activity-status-pending">Monitoring</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">BLR-01 — Communication restored</div>
+                <div class="activity-description">Station was offline for 12 minutes. Data gap imputed using seasonal mean + neighbour median.</div>
+                <div class="activity-meta">
+                  <span class="activity-time">3 hours ago</span>
+                  <span class="activity-status activity-status-completed">Resolved</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Actions -->
+        <div class="activity-panel">
+          <div class="panel-title">Pending Actions</div>
+          <div class="panel-subtitle">Tasks requiring your attention</div>
+          <div class="actions-list">
+            <div class="action-item">
+              <div class="action-item-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">Review MUM-03 anomaly report</div>
+                <div class="action-item-description">AI-assisted insight — 95% confidence</div>
+              </div>
+              <svg class="action-item-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+
+            <div class="action-item">
+              <div class="action-item-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">Schedule MUM-03 maintenance</div>
+                <div class="action-item-description">Health score 79/100 — due in 71 days</div>
+              </div>
+              <svg class="action-item-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+
+            <div class="action-item">
+              <div class="action-item-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">Upload CSV batch for DEL region</div>
+                <div class="action-item-description">3 files pending processing</div>
+              </div>
+              <svg class="action-item-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+
+            <div class="action-item">
+              <div class="action-item-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">Approve weekly anomaly digest</div>
+                <div class="action-item-description">12 anomalies, 2 unresolved</div>
+              </div>
+              <svg class="action-item-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

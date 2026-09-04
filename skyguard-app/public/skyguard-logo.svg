@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 180" role="img" aria-labelledby="title desc">
+  <title id="title">SkyGuard AI</title>
+  <desc id="desc">SkyGuard AI smart monitoring, early detection, safer weather</desc>
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#168de0"/><stop offset="1" stop-color="#082c68"/></linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#20ae59"/><stop offset="1" stop-color="#087e87"/></linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M202 16c50-27 111-27 160-3" stroke="#168bd8" stroke-width="8"/>
+    <path d="M224 92c0-25 19-44 43-44 7-18 23-29 43-29 25 0 43 18 45 43 22 1 38 17 38 40" stroke="#168bd8" stroke-width="7"/>
+    <circle cx="414" cy="57" r="23" fill="#ffb51b" stroke="#ffb51b" stroke-width="4"/>
+    <path d="M375 24l-12-15M414 13V-2M452 25l13-16M464 61l17-3M454 91l15 9" stroke="#ffb51b" stroke-width="5"/>
+    <path d="M442 100c0 0 19-1 23 17 3 14-9 24-24 20-8 11-28 7-30-8-2-15 12-28 31-29z" fill="#fff" stroke="#168bd8" stroke-width="6"/>
+    <path d="M210 75 280 36l70 39v57c-18 25-44 41-70 52-26-11-52-27-70-52z" fill="url(#shield)" stroke="#fff" stroke-width="7"/>
+    <path d="M228 80 280 51l52 29v45c-14 18-32 28-52 38-20-10-38-20-52-38z" stroke="#fff" stroke-width="3"/>
+    <path d="M242 111l18-18 15 11 20-27" stroke="#fff" stroke-width="4"/>
+    <circle cx="242" cy="111" r="4" fill="#fff"/><circle cx="260" cy="93" r="4" fill="#fff"/><circle cx="275" cy="104" r="4" fill="#fff"/><circle cx="295" cy="77" r="4" fill="#fff"/>
+    <path d="M194 125c18 42 60 65 108 67 54 2 106-26 125-75" stroke="#0c477a" stroke-width="8"/>
+    <path d="M194 126c17 51 76 69 126 64-36-12-72-31-126-64z" fill="url(#leaf)" stroke="url(#leaf)" stroke-width="4"/>
+  </g>
+  <text x="24" y="161" fill="#071c3b" font-family="Arial, sans-serif" font-size="47" font-weight="800" letter-spacing="1">SKYGUARD</text>
+  <text x="414" y="161" fill="#137dce" font-family="Arial, sans-serif" font-size="47" font-weight="800">AI</text>
+  <path d="M34 170h190M337 170h185" stroke="#137dce" stroke-width="2"/>
+  <path d="M278 164l10 5-10 10-10-10z" fill="#137dce"/>
+  <text x="142" y="181" fill="#142746" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="2.8">SMART MONITORING. EARLY DETECTION. SAFER WEATHER.</text>
+</svg>

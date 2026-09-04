@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node / web dashboards
+node_modules/
+skyguard-app/dist/
+
+# Runtime artifacts produced by the demos & examples
+alerts.log
+stream_out.txt
+*_out.txt
+
+# Local env / secrets
+.env
+.env.*
+
+# AI agent / editor / OS
+.kilo/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
