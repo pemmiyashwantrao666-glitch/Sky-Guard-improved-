@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -15,8 +16,9 @@
   --color-panel-elevated: #152536;
   --color-ink-soft: #a6b5c4;
 
-  --font-sans: "Segoe UI", "Inter", sans-serif;
-  --font-serif: "Georgia", "Times New Roman", serif;
+  --font-sans: "Nunito", "Segoe UI", "Inter", sans-serif;
+  --font-serif: "Outfit", "Georgia", "Times New Roman", serif;
+  --font-display: "Outfit", "Georgia", serif;
 }
 
 @layer base {

@@ -3,7 +3,7 @@
    Premium Indian digital design agency aesthetic
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 /* ---------- Color Tokens ---------- */
 :root {
@@ -67,8 +67,8 @@
   --radius-xl: 20px;
 
   /* Typography scale */
-  --font-display: 'DM Serif Display', Georgia, serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', Georgia, serif;
+  --font-body: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
 
   --text-xs: 0.75rem;    /* 12px */
   --text-sm: 0.875rem;   /* 14px */

@@ -37,110 +37,143 @@ const bottomNav = [
 ];
 
 export function Sidebar() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
-    const handleResize = () => setCollapsed(window.innerWidth < 768);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setCollapsed(true);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!(isMobile && !collapsed)) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCollapsed(true);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isMobile, collapsed]);
+
+  const mobileOpen = isMobile && !collapsed;
+  const expanded = !collapsed;
+
   return (
-    <aside
-      className={cn(
-        "relative z-20 flex flex-col transition-all duration-300",
-        "bg-[#0d1f3c] text-white shadow-[2px_0_16px_rgba(0,0,0,0.35)]",
-        collapsed ? "w-[68px]" : "w-64"
+    <>
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-[1px]"
+          aria-hidden="true"
+          onClick={() => setCollapsed(true)}
+        />
       )}
-    >
-      {/* Logo / Brand */}
-      <div className={cn(
-        "flex items-center border-b border-white/10 px-4 py-4",
-        collapsed ? "justify-center" : "justify-between"
-      )}>
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <img src="/skyguard-mark.svg" alt="" className="h-9 w-9" />
-            <div className="leading-tight"><p className="text-[15px] font-extrabold tracking-wider text-white">SkyGuard</p><p className="text-[10px] font-medium uppercase tracking-widest text-sky-300/80">AI Monitoring</p></div>
-          </div>
+      <aside
+        aria-label="Sidebar"
+        className={cn(
+          "z-40 flex flex-col bg-[#0d1f3c] text-white shadow-[2px_0_16px_rgba(0,0,0,0.35)] transition-all duration-300",
+          mobileOpen ? "fixed inset-y-0 left-0 w-64" : "relative w-[68px]",
+          !isMobile && (collapsed ? "w-[68px]" : "w-64")
         )}
-        {collapsed && (
-          <img src="/skyguard-mark.svg" alt="SkyGuard AI" className="h-9 w-9" />
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
+      >
+        {/* Logo / Brand */}
+        <div
           className={cn(
-            "h-8 w-8 shrink-0 rounded-lg text-slate-300 hover:bg-white/8",
-            collapsed && "mt-0"
+            "flex items-center border-b border-white/10 py-4",
+            expanded ? "justify-between px-4" : "flex-col gap-2.5"
           )}
-          onClick={() => setCollapsed(!collapsed)}
         >
-          {collapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Primary Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
-        {navItems.map((item) => (
-          <NavLink
-            key={`${item.to}-${item.label}`}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
-                isActive
-                  ? "bg-[#1e6bdc] text-white shadow-[0_2px_12px_rgba(30,107,220,0.4)]"
-                  : "text-slate-300 hover:bg-white/8 hover:text-white"
-              )
-            }
+          {expanded ? (
+            <div className="flex items-center gap-2">
+              <img src="/skyguard-mark.svg" alt="" className="h-9 w-9" />
+              <div className="leading-tight">
+                <p className="text-[15px] font-extrabold tracking-wider text-white">SkyGuard</p>
+                <p className="text-[10px] font-medium uppercase tracking-widest text-sky-300/80">AI Monitoring</p>
+              </div>
+            </div>
+          ) : (
+            <img src="/skyguard-mark.svg" alt="SkyGuard AI" className="h-9 w-9" />
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={expanded}
+            className="h-10 w-10 shrink-0 rounded-lg text-slate-300 hover:bg-white/8"
+            onClick={() => setCollapsed(!collapsed)}
           >
-            {({ isActive }) => (
-              <>
-                <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-slate-400")} />
-                {!collapsed && <span>{item.label}</span>}
-              </>
-            )}
-          </NavLink>
-        ))}
+            {expanded ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
+        </div>
 
-        {/* Divider */}
-        <div className="my-2 border-t border-white/8" />
+        {/* Primary Nav */}
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
+          {navItems.map((item) => (
+            <NavLink
+              key={`${item.to}-${item.label}`}
+              to={item.to}
+              onClick={() => isMobile && setCollapsed(true)}
+              className={({ isActive }) =>
+                cn(
+                  "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
+                  isActive
+                    ? "bg-[#1e6bdc] text-white shadow-[0_2px_12px_rgba(30,107,220,0.4)]"
+                    : "text-slate-300 hover:bg-white/8 hover:text-white"
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "text-slate-400")} />
+                  {expanded && <span>{item.label}</span>}
+                </>
+              )}
+            </NavLink>
+          ))}
 
-        {/* Bottom nav items */}
-        {bottomNav.map((item) => (
+          {/* Divider */}
+          <div className="my-2 border-t border-white/8" />
+
+          {/* Bottom nav items */}
+          {bottomNav.map((item) => (
+            <NavLink
+              key={`${item.to}-${item.label}`}
+              to={item.to}
+              onClick={() => isMobile && setCollapsed(true)}
+              className={({ isActive }) =>
+                cn(
+                  "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
+                  isActive
+                    ? "bg-[#1e6bdc] text-white shadow-[0_2px_12px_rgba(30,107,220,0.4)]"
+                    : "text-slate-300 hover:bg-white/8 hover:text-white"
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "text-slate-400")} />
+                  {expanded && <span>{item.label}</span>}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout */}
+        <div className="border-t border-white/10 p-2.5">
           <NavLink
-            key={`${item.to}-${item.label}`}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
-                isActive
-                  ? "bg-[#1e6bdc] text-white shadow-[0_2px_12px_rgba(30,107,220,0.4)]"
-                  : "text-slate-300 hover:bg-white/8 hover:text-white"
-              )
-            }
+            to="/login"
+            onClick={() => isMobile && setCollapsed(true)}
+            className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-slate-300 transition-all duration-150 hover:bg-white/8 hover:text-white"
           >
-            {({ isActive }) => (
-              <>
-                <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-slate-400")} />
-                {!collapsed && <span>{item.label}</span>}
-              </>
-            )}
+            <LogOut className="h-5 w-5 shrink-0 text-slate-400" />
+            {expanded && <span>Logout</span>}
           </NavLink>
-        ))}
-      </nav>
-
-      {/* Logout */}
-      <div className="border-t border-white/10 p-2.5">
-        <NavLink
-          to="/login"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-slate-300 hover:bg-white/8 hover:text-white transition-all duration-150"
-        >
-          <LogOut className="h-4 w-4 shrink-0 text-slate-400" />
-          {!collapsed && <span>Logout</span>}
-        </NavLink>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }

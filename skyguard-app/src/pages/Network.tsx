@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { timeAgo } from "@/lib/time";
 import {
   stations,
   anomalies,
@@ -86,16 +87,6 @@ function MapFlyTo({ position }: { position: [number, number] | null }) {
     map.flyTo(position, 8, { duration: 0.8 });
   }
   return null;
-}
-
-function formatTimeAgo(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
 }
 
 export function Network() {
@@ -571,7 +562,7 @@ function StationDrawer({
         <InfoItem
           icon={<Clock className="h-3.5 w-3.5" />}
           label="Last Sync"
-          value={formatTimeAgo(station.lastSync)}
+          value={timeAgo(station.lastSync)}
         />
       </div>
 
@@ -715,7 +706,7 @@ function StationDrawer({
                   {anom.observedValue}
                 </p>
                 <p className="mt-0.5 text-[10px] text-graphite/40">
-                  {formatTimeAgo(anom.detectedAt)}
+                  {timeAgo(anom.detectedAt)}
                 </p>
               </div>
             ))}

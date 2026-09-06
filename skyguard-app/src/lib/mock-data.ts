@@ -78,7 +78,11 @@ export interface RegionStat {
   criticalStations: number;
 }
 
-export const stations: Station[] = [
+import { imdStations, type ImdStation } from "./imd-stations";
+
+export { imdStations, type ImdStation } from "./imd-stations";
+
+const customStations: Station[] = [
   {
     id: "MH-042",
     name: "Pune Observatory",
@@ -479,6 +483,93 @@ export const stations: Station[] = [
     sensorDrift: 1.3,
   },
 ];
+
+function seededRoll(seed: number): number {
+  const x = Math.sin(seed * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
+}
+
+function enrichImdStation(imd: ImdStation, index: number): Station {
+  const roll = seededRoll(index);
+  const status: Station["status"] =
+    roll < 0.78 ? "active" : roll < 0.88 ? "warning" : roll < 0.93 ? "maintenance" : "offline";
+
+  const healthScore =
+    status === "active"
+      ? Math.round(82 + seededRoll(index + 101) * 17)
+      : status === "warning"
+        ? Math.round(64 + seededRoll(index + 102) * 15)
+        : status === "maintenance"
+          ? Math.round(34 + seededRoll(index + 103) * 15)
+          : Math.round(10 + seededRoll(index + 104) * 14);
+
+  const communicationQuality =
+    status === "offline"
+      ? Math.round(seededRoll(index + 105) * 18)
+      : status === "maintenance"
+        ? Math.round(40 + seededRoll(index + 106) * 24)
+        : status === "warning"
+          ? Math.round(68 + seededRoll(index + 107) * 17)
+          : Math.round(88 + seededRoll(index + 108) * 11);
+
+  const batteryLevel =
+    status === "offline"
+      ? Math.round(5 + seededRoll(index + 109) * 14)
+      : status === "maintenance"
+        ? Math.round(38 + seededRoll(index + 110) * 26)
+        : Math.round(62 + seededRoll(index + 111) * 33);
+
+  const sensorDrift =
+    status === "active"
+      ? +(0.2 + seededRoll(index + 112) * 0.8).toFixed(1)
+      : status === "warning"
+        ? +(1.2 + seededRoll(index + 113) * 1.4).toFixed(1)
+        : status === "maintenance"
+          ? +(2 + seededRoll(index + 114) * 2).toFixed(1)
+          : +(3.2 + seededRoll(index + 115) * 2.6).toFixed(1);
+
+  const temperature = +(
+    28 - Math.max(0, imd.latitude - 8) * 0.45 +
+    (seededRoll(index + 116) - 0.5) * 6
+  ).toFixed(1);
+  const humidity = Math.min(98, Math.max(18, Math.round(45 + seededRoll(index + 117) * 45)));
+  const pressure = +(1004 + seededRoll(index + 118) * 12).toFixed(1);
+  const elevation = Math.round(10 + seededRoll(index + 119) * 620);
+
+  const offlineHours = status === "offline" ? 4 + Math.floor(seededRoll(index + 120) * 18) : 0;
+  const syncMinutes =
+    status === "active"
+      ? Math.floor(seededRoll(index + 121) * 8)
+      : status === "warning"
+        ? Math.floor(10 + seededRoll(index + 122) * 25)
+        : status === "maintenance"
+          ? 60 + Math.floor(seededRoll(index + 123) * 60)
+          : 0;
+
+  return {
+    id: imd.id,
+    name: imd.name,
+    state: imd.state,
+    district: imd.district,
+    region: imd.region,
+    latitude: imd.latitude,
+    longitude: imd.longitude,
+    elevation,
+    status,
+    healthScore,
+    lastSync: new Date(
+      Date.now() - (offlineHours * 60 + syncMinutes) * 60 * 1000
+    ).toISOString(),
+    temperature,
+    humidity,
+    pressure,
+    communicationQuality,
+    batteryLevel,
+    sensorDrift,
+  };
+}
+
+export const stations: Station[] = [...customStations, ...imdStations.map(enrichImdStation)];
 
 export const anomalies: Anomaly[] = [
   {
