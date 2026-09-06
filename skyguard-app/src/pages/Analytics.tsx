@@ -664,7 +664,7 @@ export function Analytics() {
               </div>
             </div>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
               <div className="space-y-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-graphite/60">
                   Station
@@ -740,7 +740,7 @@ export function Analytics() {
                 </select>
               </div>
 
-              <div className="flex items-end gap-2">
+              <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-2">
                 <Button onClick={handleInject} className="flex-1">
                   <Play className="h-4 w-4" />
                   Inject demo anomaly
