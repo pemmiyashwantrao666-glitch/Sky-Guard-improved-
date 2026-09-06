@@ -47,7 +47,13 @@
   button,
   input,
   select {
-    transition: all 180ms ease;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      opacity 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
   }
 
   ::selection {

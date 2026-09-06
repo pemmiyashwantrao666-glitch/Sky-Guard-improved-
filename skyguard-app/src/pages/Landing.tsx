@@ -96,10 +96,15 @@ function SensorNetworkGlobe() {
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(mount);
+    // Pause the render loop entirely when the globe is hovered or off-screen,
+    // so the GPU idles instead of redrawing at 60fps.
+    let inView = true;
+    const visibilityObserver = new IntersectionObserver((entries) => { inView = entries[0]?.isIntersecting ?? true; });
+    visibilityObserver.observe(mount);
     let frame = 0;
-    const animate = () => { frame = requestAnimationFrame(animate); if (!pausedRef.current) globe.rotation.y += 0.0018; points.forEach((point, index) => { const pulse = 1 + Math.sin(Date.now() * 0.003 + index) * 0.18; point.scale.setScalar(pulse); }); renderer.render(scene, camera); };
+    const animate = () => { frame = requestAnimationFrame(animate); if (pausedRef.current || !inView) return; globe.rotation.y += 0.0018; points.forEach((point, index) => { const pulse = 1 + Math.sin(Date.now() * 0.003 + index) * 0.18; point.scale.setScalar(pulse); }); renderer.render(scene, camera); };
     animate();
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); renderer.dispose(); sphere.geometry.dispose(); (sphere.material as THREE.Material).dispose(); atmosphere.geometry.dispose(); (atmosphere.material as THREE.Material).dispose(); links.dispose(); points.forEach((point) => { point.geometry.dispose(); (point.material as THREE.Material).dispose(); }); renderer.domElement.remove(); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); visibilityObserver.disconnect(); renderer.dispose(); sphere.geometry.dispose(); (sphere.material as THREE.Material).dispose(); atmosphere.geometry.dispose(); (atmosphere.material as THREE.Material).dispose(); links.dispose(); points.forEach((point) => { point.geometry.dispose(); (point.material as THREE.Material).dispose(); }); renderer.domElement.remove(); };
   }, []);
 
   return <div className="sensor-globe" onMouseEnter={() => { pausedRef.current = true; }} onMouseLeave={() => { pausedRef.current = false; }}><div ref={mountRef} className="sensor-globe-canvas" /><div className="globe-caption"><span className="globe-pulse" /> LIVE SENSOR NETWORK <b>128 NODES</b></div><div className="globe-legend"><span><i className="legend-cyan" /> Healthy</span><span><i className="legend-amber" /> Watch</span><span><i className="legend-red" /> Anomaly</span></div></div>;

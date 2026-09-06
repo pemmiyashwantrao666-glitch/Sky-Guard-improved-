@@ -45,14 +45,21 @@ const humidSparkData = generateReadings("h", 12).map((d) => ({ v: d.humidity }))
 const rainSparkData = generateReadings("r", 12).map((d) => ({ v: Math.abs(d.pressure - 1010) * 0.3 }));
 const windSparkData = generateReadings("w", 12).map((d) => ({ v: d.windSpeed }));
 
+// Cache marker icons per status — recreating L.divIcon objects on every render
+// forces Leaflet to rebuild marker DOM nodes, which was a major source of lag.
+const overviewMarkerIconCache: Record<string, L.DivIcon> = {};
 function createOverviewMarkerIcon(status: string) {
+  const cached = overviewMarkerIconCache[status];
+  if (cached) return cached;
   const color = statusColor[status] ?? "#94a3b8";
-  return L.divIcon({
+  const icon = L.divIcon({
     className: "overview-marker",
     html: `<span style="display:block;width:14px;height:14px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 1px 5px rgba(15,23,42,.45)"></span>`,
     iconSize: [14, 14],
     iconAnchor: [7, 7],
   });
+  overviewMarkerIconCache[status] = icon;
+  return icon;
 }
 
 const statusColor: Record<string, string> = {
@@ -110,8 +117,43 @@ function KPICard({
   );
 }
 
+// ── Live clock (isolated so time ticks don't re-render the whole page) ───────
+function LiveClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(new Date()), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  return <>{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</>;
+}
+
+// ── Live badge (self-contained stream subscription) ──────────────────────────
+function LiveStreamBadge() {
+  const [live, setLive] = useState(false);
+  useEffect(() => {
+    const unsub = streamService.subscribe(() => setLive(true));
+    streamService.start();
+    return unsub;
+  }, []);
+  if (!live) return null;
+  return (
+    <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow">
+      <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+      LIVE
+    </div>
+  );
+}
+
 // ── Anomaly Detection Panel ──────────────────────────────────────────────────
-function AnomalyDetectionPanel({ onDismiss, liveData }: { onDismiss: () => void; liveData: any }) {
+function AnomalyDetectionPanel({ onDismiss }: { onDismiss: () => void }) {
+  const [liveData, setLiveData] = useState<any>(null);
+
+  useEffect(() => {
+    const unsub = streamService.subscribe((data) => setLiveData(data));
+    streamService.start();
+    return unsub;
+  }, []);
+
   const unresolved = anomalies
     .filter((a) => a.status !== "resolved" && a.status !== "dismissed")
     .sort((a, b) => b.confidence - a.confidence);
@@ -321,7 +363,6 @@ function AnomalyDetectionPanel({ onDismiss, liveData }: { onDismiss: () => void;
 }
 
 export function Overview() {
-  const [liveData, setLiveData] = useState<any>(null);
   const [hoveredStation, setHoveredStation] = useState<string | null>(null);
   const [showAnomalyPanel, setShowAnomalyPanel] = useState(true);
 
@@ -336,15 +377,7 @@ export function Overview() {
   const avgTemp = (stations.reduce((s, x) => s + x.temperature, 0) / stations.length).toFixed(1);
   const avgHumid = Math.round(stations.reduce((s, x) => s + x.humidity, 0) / stations.length);
 
-  useEffect(() => {
-    const unsub = streamService.subscribe((data) => setLiveData(data));
-    streamService.start();
-    return unsub;
-  }, []);
-
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" });
-  const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const dateStr = new Date().toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" });
 
   const recentAlerts = [
     { icon: "🌬️", title: "High Wind Speed", station: "Raipur AWS", time: "10:15 AM", sev: "critical" },
@@ -372,7 +405,7 @@ export function Overview() {
         </div>
         <div className="text-right text-sm text-slate-400 hidden md:block">
           <p className="font-medium text-slate-600">{dateStr}</p>
-          <p>{timeStr}</p>
+          <p><LiveClock /></p>
         </div>
       </div>
 
@@ -422,7 +455,7 @@ export function Overview() {
 
       <AnimatePresence>
         {showAnomalyPanel && (
-          <AnomalyDetectionPanel onDismiss={() => setShowAnomalyPanel(false)} liveData={liveData} />
+          <AnomalyDetectionPanel onDismiss={() => setShowAnomalyPanel(false)} />
         )}
       </AnimatePresence>
 
@@ -523,12 +556,7 @@ export function Overview() {
             </div>
 
             {/* Live badge */}
-            {liveData && (
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow">
-                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                LIVE
-              </div>
-            )}
+            <LiveStreamBadge />
           </div>
         </div>
 
