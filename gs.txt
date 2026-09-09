@@ -1,2 +1,0 @@
- tatus --short | 5 -----
- 1 file changed, 5 deletions(-)
