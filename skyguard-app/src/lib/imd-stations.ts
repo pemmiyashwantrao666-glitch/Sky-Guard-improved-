@@ -17,9 +17,33 @@ export interface ImdStation {
   approximate: boolean;
 }
 
-export const IMD_STATION_COUNT = 1150;
+const INDIA_BOUNDS = {
+  latMin: 6.0,
+  latMax: 37.7,
+  lngMin: 67.5,
+  lngMax: 97.5,
+};
 
-export const imdStations: ImdStation[] = [
+function isWithinIndia(station: ImdStation): boolean {
+  return (
+    station.latitude >= INDIA_BOUNDS.latMin &&
+    station.latitude <= INDIA_BOUNDS.latMax &&
+    station.longitude >= INDIA_BOUNDS.lngMin &&
+    station.longitude <= INDIA_BOUNDS.lngMax
+  );
+}
+
+function deduplicateByCoords(arr: ImdStation[]): ImdStation[] {
+  const seen = new Set<string>();
+  return arr.filter((station) => {
+    const key = `${station.latitude.toFixed(3)},${station.longitude.toFixed(3)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+const rawImdStations: ImdStation[] = [
   { id: "IMD-100001", slug: "chakulia", name: "Chakulia", state: "Jharkhand", district: "Chakulia", region: "east", imdId: "100001", latitude: 22.48301, longitude: 86.71793, approximate: false },
   { id: "IMD-100002", slug: "dhanbad", name: "Dhanbad", state: "Jharkhand", district: "Dhanbad", region: "east", imdId: "100002", latitude: 23.79759, longitude: 86.42992, approximate: false },
   { id: "IMD-100003", slug: "garhwa", name: "Garhwa", state: "Jharkhand", district: "Garhwa", region: "east", imdId: "100003", latitude: 24.16002, longitude: 83.80755, approximate: false },
@@ -1169,5 +1193,204 @@ export const imdStations: ImdStation[] = [
   { id: "IMD-99990", slug: "gilgit", name: "Gilgit", state: "Ladakh", district: "Gilgit", region: "north", imdId: "99990", latitude: 35.91869, longitude: 74.31245, approximate: false },
   { id: "IMD-99991", slug: "skardu", name: "Skardu", state: "Ladakh", district: "Skardu", region: "north", imdId: "99991", latitude: 35.29787, longitude: 75.63372, approximate: false },
   { id: "IMD-99996", slug: "muzaffarabad", name: "Muzaffarabad", state: "Jammu & Kashmir", district: "Muzaffarabad", region: "north", imdId: "99996", latitude: 34.37002, longitude: 73.47082, approximate: false },
-  { id: "IMD-99997", slug: "dindigul iaf", name: "Dindigul iaf", state: "Telangana", district: "Dindigul iaf", region: "south", imdId: "99997", latitude: 10.36896, longitude: 77.98036, approximate: false }
+   { id: "IMD-99997", slug: "dindigul iaf", name: "Dindigul iaf", state: "Telangana", district: "Dindigul iaf", region: "south", imdId: "99997", latitude: 10.36896, longitude: 77.98036, approximate: false }
 ];
+
+export const imdStations = deduplicateByCoords(rawImdStations.filter(isWithinIndia));
+
+const COORDINATE_OVERRIDES: Record<string, { lat: number; lng: number }> = {
+  "pune": { lat: 18.5204, lng: 73.8567 },
+  "jaipur": { lat: 26.9124, lng: 75.7873 },
+  "delhi": { lat: 28.6139, lng: 77.2090 },
+  "new delhi": { lat: 28.6139, lng: 77.2090 },
+  "bengaluru": { lat: 12.9716, lng: 77.5946 },
+  "bangalore": { lat: 12.9716, lng: 77.5946 },
+  "chennai": { lat: 13.0827, lng: 80.2707 },
+  "kolkata": { lat: 22.5726, lng: 88.3639 },
+  "calcutta": { lat: 22.5726, lng: 88.3639 },
+  "mumbai": { lat: 19.0760, lng: 72.8777 },
+  "bombay": { lat: 19.0760, lng: 72.8777 },
+  "lucknow": { lat: 26.8467, lng: 80.9462 },
+  "patna": { lat: 25.6093, lng: 85.1376 },
+  "bhopal": { lat: 23.2599, lng: 77.4126 },
+  "guwahati": { lat: 26.1445, lng: 91.7362 },
+  "shimla": { lat: 31.1048, lng: 77.1734 },
+  "srinagar": { lat: 34.0837, lng: 74.7973 },
+  "thiruvananthapuram": { lat: 8.5241, lng: 76.9366 },
+  "trivandrum": { lat: 8.5241, lng: 76.9366 },
+  "hyderabad": { lat: 17.3850, lng: 78.4867 },
+  "ahmedabad": { lat: 23.0225, lng: 72.5714 },
+  "raipur": { lat: 21.2514, lng: 81.6296 },
+  "ranchi": { lat: 23.3441, lng: 85.3096 },
+  "dehradun": { lat: 30.3165, lng: 78.0322 },
+  "chandigarh": { lat: 30.7333, lng: 76.7794 },
+  "amritsar": { lat: 31.6340, lng: 74.8723 },
+  "bhubaneswar": { lat: 20.2961, lng: 85.8245 },
+  "gangtok": { lat: 27.3389, lng: 88.6065 },
+  "imphal": { lat: 24.8170, lng: 93.9368 },
+  "aizawl": { lat: 23.7271, lng: 92.7176 },
+  "kohima": { lat: 25.6586, lng: 94.1086 },
+  "agartala": { lat: 23.8315, lng: 91.2868 },
+  "itanagar": { lat: 27.1044, lng: 93.6920 },
+  "shillong": { lat: 25.5788, lng: 91.8933 },
+  "panaji": { lat: 15.4909, lng: 73.8278 },
+  "goa": { lat: 15.4909, lng: 73.8278 },
+  "daman": { lat: 20.3974, lng: 72.8359 },
+  "puducherry": { lat: 11.9416, lng: 79.8083 },
+  "pondicherry": { lat: 11.9416, lng: 79.8083 },
+  "port blair": { lat: 11.6234, lng: 92.7265 },
+  "varanasi": { lat: 25.3176, lng: 82.9739 },
+  "nagpur": { lat: 21.1458, lng: 79.0882 },
+  "indore": { lat: 22.7196, lng: 75.8577 },
+  "visakhapatnam": { lat: 17.6868, lng: 83.2185 },
+  "vijayawada": { lat: 16.5062, lng: 80.6480 },
+  "coimbatore": { lat: 11.0168, lng: 76.9558 },
+  "madurai": { lat: 9.9252, lng: 78.1198 },
+  "trichy": { lat: 10.7905, lng: 78.7047 },
+  "tiruchirappalli": { lat: 10.7905, lng: 78.7047 },
+  "mangalore": { lat: 12.9141, lng: 74.8560 },
+  "hubli": { lat: 15.3647, lng: 75.1240 },
+  "belgaum": { lat: 15.8497, lng: 74.4977 },
+  "belagavi": { lat: 15.8497, lng: 74.4977 },
+  " mysore": { lat: 12.2958, lng: 76.6394 },
+  "mysuru": { lat: 12.2958, lng: 76.6394 },
+  "kanpur": { lat: 26.4499, lng: 80.3319 },
+  "agra": { lat: 27.1767, lng: 78.0081 },
+  "meerut": { lat: 28.9845, lng: 77.7064 },
+  "noida": { lat: 28.5355, lng: 77.3910 },
+  "ghaziabad": { lat: 28.6692, lng: 77.4538 },
+  "faridabad": { lat: 28.4089, lng: 77.3178 },
+  "gurgaon": { lat: 28.4595, lng: 77.0266 },
+  "gurugram": { lat: 28.4595, lng: 77.0266 },
+  "jodhpur": { lat: 26.2389, lng: 73.0243 },
+  "udaipur": { lat: 24.5854, lng: 73.7125 },
+  "kota": { lat: 25.2138, lng: 75.8648 },
+  "ajmer": { lat: 26.4499, lng: 74.6399 },
+  "warangal": { lat: 17.9784, lng: 79.5941 },
+  "nizamabad": { lat: 18.6725, lng: 78.0940 },
+  "karimnagar": { lat: 18.4386, lng: 79.1288 },
+  "guntur": { lat: 16.3067, lng: 80.4365 },
+  "nellore": { lat: 14.4426, lng: 79.9865 },
+  "tirupati": { lat: 13.6288, lng: 79.4192 },
+  "cuttack": { lat: 20.4625, lng: 85.8830 },
+  "balasore": { lat: 21.4934, lng: 86.9327 },
+  "sambalpur": { lat: 21.4669, lng: 83.9812 },
+  "jamshedpur": { lat: 22.8046, lng: 86.2029 },
+  "dhanbad": { lat: 23.7957, lng: 86.4304 },
+  "bhagalpur": { lat: 25.2425, lng: 86.9842 },
+  "muzaffarpur": { lat: 26.1209, lng: 85.3647 },
+  "gaya": { lat: 24.7953, lng: 85.0043 },
+  "darbhanga": { lat: 26.1542, lng: 86.1132 },
+  "siliguri": { lat: 26.7271, lng: 88.3953 },
+  "dibrugarh": { lat: 27.4728, lng: 94.9120 },
+  "jorhat": { lat: 26.7509, lng: 94.2037 },
+  "tezpur": { lat: 26.6528, lng: 92.7926 },
+  "dimapur": { lat: 25.9058, lng: 93.7264 },
+  "tepui": { lat: 25.5788, lng: 91.8933 },
+  "dhubri": { lat: 26.0186, lng: 90.0026 },
+  "nagaon": { lat: 26.3500, lng: 92.6833 },
+  "tekk": { lat: 26.6500, lng: 92.6833 },
+  "tinsukia": { lat: 27.4942, lng: 95.3634 },
+  "lakhimpur": { lat: 27.2359, lng: 94.0998 },
+  "sivasagar": { lat: 26.9847, lng: 94.6371 },
+  "cachar": { lat: 24.8333, lng: 92.7833 },
+  "karimganj": { lat: 24.8687, lng: 92.3547 },
+  "hailakandi": { lat: 24.6833, lng: 92.5667 },
+  "jiribam": { lat: 24.8333, lng: 93.1333 },
+  "churachandpur": { lat: 24.3333, lng: 93.6833 },
+  "thoubal": { lat: 24.6333, lng: 94.0167 },
+  "ukhrul": { lat: 25.1500, lng: 94.3667 },
+  "chandel": { lat: 24.6833, lng: 94.7333 },
+  "senapati": { lat: 25.4833, lng: 94.0167 },
+  "tamenglong": { lat: 24.9833, lng: 93.5000 },
+  "jowai": { lat: 25.4500, lng: 92.2000 },
+  "tura": { lat: 25.5133, lng: 90.2317 },
+  "nongstoin": { lat: 25.5167, lng: 91.2833 },
+  "cherrapunji": { lat: 25.2833, lng: 91.7333 },
+  "dawki": { lat: 25.1833, lng: 92.0167 },
+  "baghmara": { lat: 25.2000, lng: 90.6333 },
+  "williamnagar": { lat: 25.4833, lng: 90.8833 },
+  "resubelpara": { lat: 25.6333, lng: 90.6167 },
+  "khliehriat": { lat: 25.3667, lng: 92.3667 },
+  " Şeong": { lat: 25.3667, lng: 92.3667 },
+  "lero": { lat: 25.3667, lng: 92.3667 },
+  "mairang": { lat: 25.5667, lng: 91.8833 },
+  "mawkyrwat": { lat: 25.3000, lng: 91.8833 },
+  "nongpoh": { lat: 25.9000, lng: 91.8833 },
+  "balgai": { lat: 25.5133, lng: 90.2317 },
+  "kharkutta": { lat: 25.6833, lng: 90.6833 },
+  "mandalgre": { lat: 25.4833, lng: 90.5833 },
+  "phulbari": { lat: 25.5833, lng: 90.1167 },
+  "simsekgra": { lat: 25.4500, lng: 90.1667 },
+  "dadenggre": { lat: 25.4333, lng: 90.5167 },
+  "selsella": { lat: 25.4500, lng: 90.0833 },
+  "betasing": { lat: 25.3833, lng: 89.9167 },
+  "zikzak": { lat: 25.2167, lng: 89.8833 },
+  "aibahgiri": { lat: 25.1333, lng: 90.0500 },
+  "khal schemes": { lat: 25.5333, lng: 90.1833 },
+  "rongchek": { lat: 25.4833, lng: 90.3500 },
+  "salpara": { lat: 25.5667, lng: 90.1833 },
+  "dainadubi": { lat: 25.6167, lng: 90.4667 },
+  "tikrikilla": { lat: 25.4500, lng: 90.3167 },
+  "jengjal": { lat: 25.3833, lng: 90.4500 },
+  "rongram": { lat: 25.5167, lng: 90.4333 },
+  "goalpara": { lat: 26.1734, lng: 90.6255 },
+  "kokrajhar": { lat: 26.4747, lng: 90.2693 },
+  "chirang": { lat: 26.4500, lng: 90.4333 },
+  "baksa": { lat: 26.5667, lng: 90.7167 },
+  "udalguri": { lat: 26.7500, lng: 92.1000 },
+  "darrang": { lat: 26.4500, lng: 92.0333 },
+  "sonitpur": { lat: 26.6500, lng: 92.8000 },
+  "dhemaji": { lat: 27.2333, lng: 94.5833 },
+  " north cachar hills": { lat: 25.2000, lng: 93.1000 },
+  "dima hasao": { lat: 25.2000, lng: 93.1000 },
+};
+
+export const imdStationsWithOverrides = imdStations.map((s) => {
+  const key = s.name.toLowerCase().replace(/\s+/g, " ").trim();
+  const override = COORDINATE_OVERRIDES[key];
+  if (override) {
+    return { ...s, latitude: override.lat, longitude: override.lng, approximate: false };
+  }
+  return s;
+});
+
+export const IMD_STATION_COUNT = imdStationsWithOverrides.length;
+
+// ---------------------------------------------------------------------------
+// Dev-time catalog integrity check (no-op in production builds).
+// Surfaces duplicate ids / duplicate coordinates early instead of causing
+// confusing downstream bugs (e.g. React key collisions on the map, stations
+// overwriting each other's readings in the weather bulk fetch).
+// ---------------------------------------------------------------------------
+function assertUniqueCatalog(stations: ImdStation[]): void {
+  const idCounts = new Map<string, number>();
+  const coordCounts = new Map<string, number>();
+  for (const s of stations) {
+    idCounts.set(s.id, (idCounts.get(s.id) ?? 0) + 1);
+    const coordKey = `${s.latitude.toFixed(3)},${s.longitude.toFixed(3)}`;
+    coordCounts.set(coordKey, (coordCounts.get(coordKey) ?? 0) + 1);
+  }
+  const dupIds = [...idCounts.entries()].filter(([, n]) => n > 1);
+  const dupCoords = [...coordCounts.entries()].filter(([, n]) => n > 1);
+  if (dupIds.length > 0) {
+    console.warn(
+      `[imd-stations] ${dupIds.length} duplicate station id(s), e.g. ${dupIds
+        .slice(0, 5)
+        .map(([id, n]) => `"${id}" x${n}`)
+        .join(", ")}`,
+    );
+  }
+  if (dupCoords.length > 0) {
+    console.warn(
+      `[imd-stations] ${dupCoords.length} duplicate coordinate group(s), e.g. ${dupCoords
+        .slice(0, 5)
+        .map(([c, n]) => `(${c}) x${n}`)
+        .join(", ")}`,
+    );
+  }
+}
+
+if (import.meta.env.DEV) {
+  assertUniqueCatalog(imdStationsWithOverrides);
+}

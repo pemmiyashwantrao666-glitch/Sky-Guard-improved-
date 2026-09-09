@@ -40,10 +40,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getStationById,
   getAnomaliesByStation,
-  maintenanceTasks,
-  generateReadings,
+  demoMaintenanceTasks as maintenanceTasks,
+  type Reading,
 } from "@/lib/mock-data";
 import { streamService } from "@/lib/stream";
+import { getStationHourlyWeather } from "@/lib/station-service";
+import { subscribeEdgeStream } from "@/lib/edge-api";
 
 const fadeUp = {
   initial: { opacity: 0, y: 12 },
@@ -53,6 +55,11 @@ const fadeUp = {
 };
 
 function formatTime(iso: string) {
+  // Open-Meteo returns local-time strings like "2026-09-09T14:00" (IST) with no
+  // timezone marker; parsing them with `new Date()` would shift the label in
+  // browsers on other timezones, so slice the clock portion directly.
+  const match = /T(\d{2}:\d{2})/.exec(iso);
+  if (match) return match[1];
   return new Date(iso).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -102,6 +109,29 @@ const monthQualityData = [
   { month: "Dec", missingness: 1.3, spikeCount: 0, drift: 0.4, consistency: 97 },
 ];
 
+// Deterministic demo readings (replaces the removed `generateReadings()` mock export).
+function generateReadingsFor(stationId: string, hours: number) {
+  const seed = [...stationId].reduce((n, c) => n + c.charCodeAt(0), 0);
+  const now = Date.now();
+  return Array.from({ length: hours }, (_, i) => {
+    const t = new Date(now - (hours - 1 - i) * 60 * 60 * 1000);
+    const phase = (seed + i) / 2.4;
+    const temperature = Math.round((26 + Math.sin(phase) * 4.6) * 10) / 10;
+    const humidity = Math.round((55 + Math.cos(phase * 1.3) * 10) * 10) / 10;
+    const pressure = Math.round((1008 + Math.sin(phase * 0.8) * 4.8) * 10) / 10;
+    const windSpeed = Math.round((7 + Math.abs(Math.cos(phase * 1.6)) * 6) * 10) / 10;
+    return {
+      timestamp: t.toISOString(),
+      temperature,
+      humidity,
+      pressure,
+      windSpeed,
+      expectedTemp: Math.round(temperature * 1.06 * 10) / 10,
+      correctedTemp: i % 5 === 3 ? Math.round((temperature + 1.3) * 10) / 10 : undefined,
+    };
+  });
+}
+
 export function StationDetail() {
   const { id } = useParams<{ id: string }>();
   const station = useMemo(() => (id ? getStationById(id) : undefined), [id]);
@@ -110,6 +140,7 @@ export function StationDetail() {
   const [liveReadings, setLiveReadings] = useState<
     { timestamp: string; temperature: number; humidity: number; pressure: number; windSpeed: number }[]
   >([]);
+  const [currentReadings, setCurrentReadings] = useState<{ temperature: number; humidity: number; pressure: number } | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
 
   const stationAnomalies = useMemo(
@@ -120,7 +151,44 @@ export function StationDetail() {
     () => maintenanceTasks.filter((t) => t.stationId === id),
     [id]
   );
-  const readings = useMemo(() => (id ? generateReadings(id, 24) : []), [id]);
+
+  // Real 24h history from Open-Meteo; the deterministic demo generator is only
+  // a fallback so the charts still render when the API is unreachable. Results
+  // are stored keyed by station id so stale data never leaks across stations.
+  const [apiHistory, setApiHistory] = useState<{ stationId: string; readings: Reading[] } | null>(
+    null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadHistory() {
+      if (!id) return;
+      const data = await getStationHourlyWeather(id, 24);
+      if (!cancelled && data.length > 0) {
+        setApiHistory({
+          stationId: id,
+          readings: data.map((r) => ({
+            timestamp: r.timestamp,
+            temperature: r.temperature,
+            humidity: r.humidity,
+            pressure: r.pressure,
+            windSpeed: r.windSpeed,
+          })),
+        });
+      }
+    }
+    loadHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const readings = useMemo(() => {
+    if (apiHistory && apiHistory.stationId === id && apiHistory.readings.length > 0) {
+      return apiHistory.readings;
+    }
+    return id ? generateReadingsFor(id, 24) : [];
+  }, [apiHistory, id]);
   const rawCsvRows = useMemo(
     () =>
       readings.map((r, i) => ({
@@ -137,6 +205,7 @@ export function StationDetail() {
   );
 
   useEffect(() => {
+    streamService.setTargetStation(id ?? null);
     if (!streaming) return;
     const unsub = streamService.subscribe((data) => {
       if (data.stationId === id) {
@@ -145,12 +214,33 @@ export function StationDetail() {
           if (next.length > 60) next.shift();
           return next;
         });
+        setCurrentReadings({
+          temperature: data.temperature,
+          humidity: data.humidity,
+          pressure: data.pressure,
+        });
       }
     });
     unsubRef.current = unsub;
+    // Physical ESP32 node: subscribe to gateway SSE for this station.
+    let unsubEdge: (() => void) | null = null;
+    if (id && id.startsWith('EDGE')) {
+      unsubEdge = subscribeEdgeStream((reading) => {
+        if (reading.station_id === id) {
+          setCurrentReadings({ temperature: reading.t, humidity: reading.h, pressure: reading.p });
+          setLiveReadings((prev) => {
+            const next = [...prev, { timestamp: reading.ts, temperature: reading.t, humidity: reading.h, pressure: reading.p, windSpeed: 0 }];
+            if (next.length > 60) next.shift();
+            return next;
+          });
+        }
+      });
+    }
     streamService.start();
     return () => {
       unsub();
+      if (unsubEdge) unsubEdge();
+      streamService.setTargetStation(null);
     };
   }, [streaming, id]);
 
@@ -186,6 +276,8 @@ export function StationDetail() {
     if (Array.isArray(value)) return value.join(", ");
 
     const asString = String(value);
+    const match = /T(\d{2}:\d{2})/.exec(asString);
+    if (match) return match[1];
     const parsed = new Date(asString);
     return Number.isNaN(parsed.getTime())
       ? asString
@@ -258,28 +350,28 @@ export function StationDetail() {
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Temperature</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {station.temperature}°C
+            {currentReadings?.temperature ?? station.temperature}°C
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Thermometer className="h-3 w-3" /> Current
+            <Thermometer className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Current"}
           </p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Humidity</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {station.humidity}%
+            {currentReadings?.humidity ?? station.humidity}%
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Droplets className="h-3 w-3" /> Relative
+            <Droplets className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Relative"}
           </p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Pressure</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {station.pressure} hPa
+            {currentReadings?.pressure ?? station.pressure} hPa
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Gauge className="h-3 w-3" /> Atmospheric
+            <Gauge className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Atmospheric"}
           </p>
         </Card>
         <Card className="p-4">

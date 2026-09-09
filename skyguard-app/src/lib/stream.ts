@@ -1,39 +1,74 @@
-import { stations } from "@/lib/mock-data";
+import { getStationBaseById } from "./station-service";
+import { fetchCurrentWeather, type WeatherData } from "./weather-api";
 
-type Listener = (data: any) => void;
+type Listener = (data: WeatherData & { stationId: string; stationName: string; state: string }) => void;
 
-class StreamService {
-  private listeners: Listener[] = [];
+class WeatherPoller {
+  private listeners: Map<string, Listener> = new Map();
   private interval: number | null = null;
   private running = false;
+  private targetStationId: string | null = null;
+
+  setTargetStation(id: string | null) {
+    this.targetStationId = id;
+    if (id && !this.listeners.has(id)) {
+      const base = getStationBaseById(id);
+      if (base) {
+        const listener: Listener = (() => {}) as Listener;
+        this.listeners.set(id, listener);
+        this.start();
+      }
+    } else if (!id) {
+      if (this.targetStationId && this.listeners.has(this.targetStationId)) {
+        this.listeners.delete(this.targetStationId);
+      }
+      if (this.listeners.size === 0) {
+        this.stop();
+      }
+    }
+  }
 
   subscribe(listener: Listener) {
-    this.listeners.push(listener);
+    const id = this.targetStationId;
+    if (id) {
+      this.listeners.set(id, listener);
+      this.start();
+    }
     return () => {
-      this.listeners = this.listeners.filter((l) => l !== listener);
+      if (id) {
+        this.listeners.delete(id);
+      }
+      if (this.listeners.size === 0) {
+        this.stop();
+      }
     };
   }
 
-  start() {
-    if (this.running) return;
-    this.running = true;
+  private async poll() {
+    for (const [stationId, listener] of this.listeners) {
+      const base = getStationBaseById(stationId);
+      if (!base) continue;
 
+      const weather = await fetchCurrentWeather(base.latitude, base.longitude);
+      if (weather) {
+        const data = {
+          ...weather,
+          stationId: base.id,
+          stationName: base.name,
+          state: base.state,
+        };
+        listener(data);
+      }
+    }
+  }
+
+  start() {
+    if (this.running || this.listeners.size === 0) return;
+    this.running = true;
+    this.poll();
     this.interval = window.setInterval(() => {
-      const activeStations = stations.filter((s) => s.status === "active");
-      const randomStation = activeStations[Math.floor(Math.random() * activeStations.length)] || stations[0];
-      
-      const data = {
-        stationId: randomStation.id,
-        stationName: randomStation.name,
-        state: randomStation.state,
-        temperature: +(randomStation.temperature + (Math.random() - 0.5) * 0.8).toFixed(1),
-        humidity: Math.min(100, Math.max(0, Math.round(randomStation.humidity + (Math.random() - 0.5) * 3))),
-        pressure: +(randomStation.pressure + (Math.random() - 0.5) * 0.6).toFixed(1),
-        windSpeed: +(Math.max(0, 5 + Math.random() * 15)).toFixed(1),
-        timestamp: new Date().toISOString(),
-      };
-      this.listeners.forEach((l) => l(data));
-    }, 3000);
+      this.poll();
+    }, 5 * 60 * 1000);
   }
 
   stop() {
@@ -45,4 +80,4 @@ class StreamService {
   }
 }
 
-export const streamService = new StreamService();
+export const streamService = new WeatherPoller();

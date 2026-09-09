@@ -84,468 +84,134 @@ export { imdStations, type ImdStation } from "./imd-stations";
 
 const customStations: Station[] = [
   {
-    id: "MH-042",
-    name: "Pune Observatory",
-    state: "Maharashtra",
-    district: "Pune",
-    region: "west",
-    latitude: 18.5204,
-    longitude: 73.8567,
-    elevation: 560,
-    status: "active",
-    healthScore: 94,
-    lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-    temperature: 28.4,
-    humidity: 62,
-    pressure: 1012.5,
-    communicationQuality: 98,
-    batteryLevel: 87,
-    sensorDrift: 0.3,
+    id: "MH-042", name: "Pune Observatory", state: "Maharashtra", district: "Pune",
+    region: "west", latitude: 18.5204, longitude: 73.8567, elevation: 560,
+    status: "active", healthScore: 94, lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 98, batteryLevel: 87, sensorDrift: 0.3,
   },
   {
-    id: "RJ-018",
-    name: "Jaipur Central",
-    state: "Rajasthan",
-    district: "Jaipur",
-    region: "north",
-    latitude: 26.9124,
-    longitude: 75.7873,
-    elevation: 431,
-    status: "warning",
-    healthScore: 71,
-    lastSync: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-    temperature: 38.2,
-    humidity: 28,
-    pressure: 1008.3,
-    communicationQuality: 82,
-    batteryLevel: 64,
-    sensorDrift: 1.8,
+    id: "RJ-018", name: "Jaipur Central", state: "Rajasthan", district: "Jaipur",
+    region: "north", latitude: 26.9124, longitude: 75.7873, elevation: 431,
+    status: "warning", healthScore: 71, lastSync: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 82, batteryLevel: 64, sensorDrift: 1.8,
   },
   {
-    id: "DL-007",
-    name: "Delhi Ridge",
-    state: "Delhi",
-    district: "New Delhi",
-    region: "north",
-    latitude: 28.6139,
-    longitude: 77.209,
-    elevation: 216,
-    status: "active",
-    healthScore: 91,
-    lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
-    temperature: 34.1,
-    humidity: 45,
-    pressure: 1005.8,
-    communicationQuality: 96,
-    batteryLevel: 92,
-    sensorDrift: 0.5,
+    id: "DL-007", name: "Delhi Ridge", state: "Delhi", district: "New Delhi",
+    region: "north", latitude: 28.6139, longitude: 77.209, elevation: 216,
+    status: "active", healthScore: 91, lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 96, batteryLevel: 92, sensorDrift: 0.5,
   },
   {
-    id: "KA-031",
-    name: "Bengaluru Tech",
-    state: "Karnataka",
-    district: "Bengaluru",
-    region: "south",
-    latitude: 12.9716,
-    longitude: 77.5946,
-    elevation: 920,
-    status: "active",
-    healthScore: 89,
-    lastSync: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
-    temperature: 24.6,
-    humidity: 71,
-    pressure: 1015.2,
-    communicationQuality: 94,
-    batteryLevel: 78,
-    sensorDrift: 0.8,
+    id: "KA-031", name: "Bengaluru Tech", state: "Karnataka", district: "Bengaluru",
+    region: "south", latitude: 12.9716, longitude: 77.5946, elevation: 920,
+    status: "active", healthScore: 89, lastSync: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 94, batteryLevel: 78, sensorDrift: 0.8,
   },
   {
-    id: "TN-025",
-    name: "Chennai Coastal",
-    state: "Tamil Nadu",
-    district: "Chennai",
-    region: "south",
-    latitude: 13.0827,
-    longitude: 80.2707,
-    elevation: 6,
-    status: "active",
-    healthScore: 86,
-    lastSync: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    temperature: 32.1,
-    humidity: 78,
-    pressure: 1009.4,
-    communicationQuality: 91,
-    batteryLevel: 81,
-    sensorDrift: 0.6,
+    id: "TN-025", name: "Chennai Coastal", state: "Tamil Nadu", district: "Chennai",
+    region: "south", latitude: 13.0827, longitude: 80.2707, elevation: 6,
+    status: "active", healthScore: 86, lastSync: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 91, batteryLevel: 81, sensorDrift: 0.6,
   },
   {
-    id: "WB-014",
-    name: "Kolkata Metro",
-    state: "West Bengal",
-    district: "Kolkata",
-    region: "east",
-    latitude: 22.5726,
-    longitude: 88.3639,
-    elevation: 9,
-    status: "active",
-    healthScore: 88,
-    lastSync: new Date(Date.now() - 1000 * 60 * 4).toISOString(),
-    temperature: 30.5,
-    humidity: 82,
-    pressure: 1007.6,
-    communicationQuality: 93,
-    batteryLevel: 75,
-    sensorDrift: 0.4,
+    id: "WB-014", name: "Kolkata Metro", state: "West Bengal", district: "Kolkata",
+    region: "east", latitude: 22.5726, longitude: 88.3639, elevation: 9,
+    status: "active", healthScore: 88, lastSync: new Date(Date.now() - 1000 * 60 * 4).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 93, batteryLevel: 75, sensorDrift: 0.4,
   },
   {
-    id: "GJ-019",
-    name: "Ahmedabad Industrial",
-    state: "Gujarat",
-    district: "Ahmedabad",
-    region: "west",
-    latitude: 23.0225,
-    longitude: 72.5714,
-    elevation: 53,
-    status: "warning",
-    healthScore: 68,
-    lastSync: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-    temperature: 36.8,
-    humidity: 32,
-    pressure: 1010.1,
-    communicationQuality: 76,
-    batteryLevel: 45,
-    sensorDrift: 2.1,
+    id: "GJ-019", name: "Ahmedabad Industrial", state: "Gujarat", district: "Ahmedabad",
+    region: "west", latitude: 23.0225, longitude: 72.5714, elevation: 53,
+    status: "warning", healthScore: 68, lastSync: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 76, batteryLevel: 45, sensorDrift: 2.1,
   },
   {
-    id: "UP-033",
-    name: "Lucknow Plains",
-    state: "Uttar Pradesh",
-    district: "Lucknow",
-    region: "north",
-    latitude: 26.8467,
-    longitude: 80.9462,
-    elevation: 123,
-    status: "active",
-    healthScore: 92,
-    lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-    temperature: 33.4,
-    humidity: 55,
-    pressure: 1006.9,
-    communicationQuality: 97,
-    batteryLevel: 88,
-    sensorDrift: 0.2,
+    id: "UP-033", name: "Lucknow Plains", state: "Uttar Pradesh", district: "Lucknow",
+    region: "north", latitude: 26.8467, longitude: 80.9462, elevation: 123,
+    status: "active", healthScore: 92, lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 97, batteryLevel: 88, sensorDrift: 0.2,
   },
   {
-    id: "KL-022",
-    name: "Thiruvananthapuram Coast",
-    state: "Kerala",
-    district: "Thiruvananthapuram",
-    region: "south",
-    latitude: 8.5241,
-    longitude: 76.9366,
-    elevation: 3,
-    status: "active",
-    healthScore: 90,
-    lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
-    temperature: 29.8,
-    humidity: 85,
-    pressure: 1011.3,
-    communicationQuality: 95,
-    batteryLevel: 82,
-    sensorDrift: 0.4,
+    id: "KL-022", name: "Thiruvananthapuram Coast", state: "Kerala", district: "Thiruvananthapuram",
+    region: "south", latitude: 8.5241, longitude: 76.9366, elevation: 3,
+    status: "active", healthScore: 90, lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 95, batteryLevel: 82, sensorDrift: 0.4,
   },
   {
-    id: "AS-008",
-    name: "Guwahati Hills",
-    state: "Assam",
-    district: "Kamrup",
-    region: "northeast",
-    latitude: 26.1445,
-    longitude: 91.7362,
-    elevation: 55,
-    status: "offline",
-    healthScore: 12,
-    lastSync: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    temperature: 27.3,
-    humidity: 88,
-    pressure: 1013.8,
-    communicationQuality: 0,
-    batteryLevel: 8,
-    sensorDrift: 3.5,
+    id: "AS-008", name: "Guwahati Hills", state: "Assam", district: "Kamrup",
+    region: "northeast", latitude: 26.1445, longitude: 91.7362, elevation: 55,
+    status: "offline", healthScore: 12, lastSync: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 0, batteryLevel: 8, sensorDrift: 3.5,
   },
   {
-    id: "MP-029",
-    name: "Bhopal Lake",
-    state: "Madhya Pradesh",
-    district: "Bhopal",
-    region: "central",
-    latitude: 23.2599,
-    longitude: 77.4126,
-    elevation: 527,
-    status: "active",
-    healthScore: 85,
-    lastSync: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
-    temperature: 29.6,
-    humidity: 48,
-    pressure: 1014.6,
-    communicationQuality: 90,
-    batteryLevel: 72,
-    sensorDrift: 0.7,
+    id: "MP-029", name: "Bhopal Lake", state: "Madhya Pradesh", district: "Bhopal",
+    region: "central", latitude: 23.2599, longitude: 77.4126, elevation: 527,
+    status: "active", healthScore: 85, lastSync: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 90, batteryLevel: 72, sensorDrift: 0.7,
   },
   {
-    id: "HR-011",
-    name: "Chandigarh Sector",
-    state: "Haryana",
-    district: "Chandigarh",
-    region: "north",
-    latitude: 30.7333,
-    longitude: 76.7794,
-    elevation: 321,
-    status: "maintenance",
-    healthScore: 35,
-    lastSync: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    temperature: 31.2,
-    humidity: 52,
-    pressure: 1008.7,
-    communicationQuality: 45,
-    batteryLevel: 55,
-    sensorDrift: 4.2,
+    id: "HR-011", name: "Chandigarh Sector", state: "Haryana", district: "Chandigarh",
+    region: "north", latitude: 30.7333, longitude: 76.7794, elevation: 321,
+    status: "maintenance", healthScore: 35, lastSync: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 45, batteryLevel: 55, sensorDrift: 4.2,
   },
   {
-    id: "PB-015",
-    name: "Amritsar Golden",
-    state: "Punjab",
-    district: "Amritsar",
-    region: "north",
-    latitude: 31.634,
-    longitude: 74.8723,
-    elevation: 234,
-    status: "active",
-    healthScore: 87,
-    lastSync: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-    temperature: 32.8,
-    humidity: 48,
-    pressure: 1007.2,
-    communicationQuality: 92,
-    batteryLevel: 79,
-    sensorDrift: 0.5,
+    id: "PB-015", name: "Amritsar Golden", state: "Punjab", district: "Amritsar",
+    region: "north", latitude: 31.634, longitude: 74.8723, elevation: 234,
+    status: "active", healthScore: 87, lastSync: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 92, batteryLevel: 79, sensorDrift: 0.5,
   },
   {
-    id: "AP-036",
-    name: "Visakhapatnam Port",
-    state: "Andhra Pradesh",
-    district: "Visakhapatnam",
-    region: "south",
-    latitude: 17.6868,
-    longitude: 83.2185,
-    elevation: 7,
-    status: "active",
-    healthScore: 91,
-    lastSync: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
-    temperature: 30.2,
-    humidity: 76,
-    pressure: 1010.8,
-    communicationQuality: 96,
-    batteryLevel: 84,
-    sensorDrift: 0.3,
+    id: "AP-036", name: "Visakhapatnam Port", state: "Andhra Pradesh", district: "Visakhapatnam",
+    region: "south", latitude: 17.6868, longitude: 83.2185, elevation: 7,
+    status: "active", healthScore: 91, lastSync: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 96, batteryLevel: 84, sensorDrift: 0.3,
   },
   {
-    id: "OD-017",
-    name: "Bhubaneswar Temple",
-    state: "Odisha",
-    district: "Khordha",
-    region: "east",
-    latitude: 20.2961,
-    longitude: 85.8245,
-    elevation: 45,
-    status: "warning",
-    healthScore: 64,
-    lastSync: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
-    temperature: 31.5,
-    humidity: 80,
-    pressure: 1006.4,
-    communicationQuality: 68,
-    batteryLevel: 38,
-    sensorDrift: 2.4,
+    id: "OD-017", name: "Bhubaneswar Temple", state: "Odisha", district: "Khordha",
+    region: "east", latitude: 20.2961, longitude: 85.8245, elevation: 45,
+    status: "warning", healthScore: 64, lastSync: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 68, batteryLevel: 38, sensorDrift: 2.4,
   },
   {
-    id: "JH-024",
-    name: "Ranchi Plateau",
-    state: "Jharkhand",
-    district: "Ranchi",
-    region: "east",
-    latitude: 23.3441,
-    longitude: 85.3096,
-    elevation: 651,
-    status: "active",
-    healthScore: 82,
-    lastSync: new Date(Date.now() - 1000 * 60 * 7).toISOString(),
-    temperature: 26.4,
-    humidity: 68,
-    pressure: 1012.1,
-    communicationQuality: 88,
-    batteryLevel: 71,
-    sensorDrift: 0.9,
+    id: "JH-024", name: "Ranchi Plateau", state: "Jharkhand", district: "Ranchi",
+    region: "east", latitude: 23.3441, longitude: 85.3096, elevation: 651,
+    status: "active", healthScore: 82, lastSync: new Date(Date.now() - 1000 * 60 * 7).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 88, batteryLevel: 71, sensorDrift: 0.9,
   },
   {
-    id: "UK-009",
-    name: "Dehradun Valley",
-    state: "Uttarakhand",
-    district: "Dehradun",
-    region: "north",
-    latitude: 30.3165,
-    longitude: 78.0322,
-    elevation: 450,
-    status: "active",
-    healthScore: 93,
-    lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
-    temperature: 25.8,
-    humidity: 58,
-    pressure: 1016.3,
-    communicationQuality: 97,
-    batteryLevel: 90,
-    sensorDrift: 0.2,
+    id: "UK-009", name: "Dehradun Valley", state: "Uttarakhand", district: "Dehradun",
+    region: "north", latitude: 30.3165, longitude: 78.0322, elevation: 450,
+    status: "active", healthScore: 93, lastSync: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 97, batteryLevel: 90, sensorDrift: 0.2,
   },
   {
-    id: "HP-010",
-    name: "Shimla Hills",
-    state: "Himachal Pradesh",
-    district: "Shimla",
-    region: "north",
-    latitude: 31.1048,
-    longitude: 77.1734,
-    elevation: 2205,
-    status: "active",
-    healthScore: 88,
-    lastSync: new Date(Date.now() - 1000 * 60 * 4).toISOString(),
-    temperature: 18.2,
-    humidity: 65,
-    pressure: 1004.8,
-    communicationQuality: 91,
-    batteryLevel: 76,
-    sensorDrift: 0.6,
+    id: "HP-010", name: "Shimla Hills", state: "Himachal Pradesh", district: "Shimla",
+    region: "north", latitude: 31.1048, longitude: 77.1734, elevation: 2205,
+    status: "active", healthScore: 88, lastSync: new Date(Date.now() - 1000 * 60 * 4).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 91, batteryLevel: 76, sensorDrift: 0.6,
   },
   {
-    id: "GA-005",
-    name: "Panaji Beach",
-    state: "Goa",
-    district: "North Goa",
-    region: "west",
-    latitude: 15.4909,
-    longitude: 73.8278,
-    elevation: 7,
-    status: "active",
-    healthScore: 90,
-    lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-    temperature: 30.4,
-    humidity: 80,
-    pressure: 1011.6,
-    communicationQuality: 95,
-    batteryLevel: 83,
-    sensorDrift: 0.4,
+    id: "GA-005", name: "Panaji Beach", state: "Goa", district: "North Goa",
+    region: "west", latitude: 15.4909, longitude: 73.8278, elevation: 7,
+    status: "active", healthScore: 90, lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 95, batteryLevel: 83, sensorDrift: 0.4,
   },
   {
-    id: "TR-004",
-    name: "Agartala Hills",
-    state: "Tripura",
-    district: "West Tripura",
-    region: "northeast",
-    latitude: 23.8315,
-    longitude: 91.2868,
-    elevation: 17,
-    status: "active",
-    healthScore: 84,
-    lastSync: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-    temperature: 29.1,
-    humidity: 84,
-    pressure: 1012.4,
-    communicationQuality: 86,
-    batteryLevel: 69,
-    sensorDrift: 1.1,
+    id: "TR-004", name: "Agartala Hills", state: "Tripura", district: "West Tripura",
+    region: "northeast", latitude: 23.8315, longitude: 91.2868, elevation: 17,
+    status: "active", healthScore: 84, lastSync: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 86, batteryLevel: 69, sensorDrift: 1.1,
   },
   {
-    id: "CG-012",
-    name: "Raipur Plains",
-    state: "Chhattisgarh",
-    district: "Raipur",
-    region: "central",
-    latitude: 21.2514,
-    longitude: 81.6296,
-    elevation: 298,
-    status: "active",
-    healthScore: 79,
-    lastSync: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-    temperature: 31.8,
-    humidity: 58,
-    pressure: 1009.3,
-    communicationQuality: 84,
-    batteryLevel: 67,
-    sensorDrift: 1.3,
+    id: "CG-012", name: "Raipur Plains", state: "Chhattisgarh", district: "Raipur",
+    region: "central", latitude: 21.2514, longitude: 81.6296, elevation: 298,
+    status: "active", healthScore: 79, lastSync: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    temperature: 0, humidity: 0, pressure: 0, communicationQuality: 84, batteryLevel: 67, sensorDrift: 1.3,
   },
 ];
 
-function seededRoll(seed: number): number {
-  const x = Math.sin(seed * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
-}
-
-function enrichImdStation(imd: ImdStation, index: number): Station {
-  const roll = seededRoll(index);
-  const status: Station["status"] =
-    roll < 0.78 ? "active" : roll < 0.88 ? "warning" : roll < 0.93 ? "maintenance" : "offline";
-
-  const healthScore =
-    status === "active"
-      ? Math.round(82 + seededRoll(index + 101) * 17)
-      : status === "warning"
-        ? Math.round(64 + seededRoll(index + 102) * 15)
-        : status === "maintenance"
-          ? Math.round(34 + seededRoll(index + 103) * 15)
-          : Math.round(10 + seededRoll(index + 104) * 14);
-
-  const communicationQuality =
-    status === "offline"
-      ? Math.round(seededRoll(index + 105) * 18)
-      : status === "maintenance"
-        ? Math.round(40 + seededRoll(index + 106) * 24)
-        : status === "warning"
-          ? Math.round(68 + seededRoll(index + 107) * 17)
-          : Math.round(88 + seededRoll(index + 108) * 11);
-
-  const batteryLevel =
-    status === "offline"
-      ? Math.round(5 + seededRoll(index + 109) * 14)
-      : status === "maintenance"
-        ? Math.round(38 + seededRoll(index + 110) * 26)
-        : Math.round(62 + seededRoll(index + 111) * 33);
-
-  const sensorDrift =
-    status === "active"
-      ? +(0.2 + seededRoll(index + 112) * 0.8).toFixed(1)
-      : status === "warning"
-        ? +(1.2 + seededRoll(index + 113) * 1.4).toFixed(1)
-        : status === "maintenance"
-          ? +(2 + seededRoll(index + 114) * 2).toFixed(1)
-          : +(3.2 + seededRoll(index + 115) * 2.6).toFixed(1);
-
-  const temperature = +(
-    28 - Math.max(0, imd.latitude - 8) * 0.45 +
-    (seededRoll(index + 116) - 0.5) * 6
-  ).toFixed(1);
-  const humidity = Math.min(98, Math.max(18, Math.round(45 + seededRoll(index + 117) * 45)));
-  const pressure = +(1004 + seededRoll(index + 118) * 12).toFixed(1);
-  const elevation = Math.round(10 + seededRoll(index + 119) * 620);
-
-  const offlineHours = status === "offline" ? 4 + Math.floor(seededRoll(index + 120) * 18) : 0;
-  const syncMinutes =
-    status === "active"
-      ? Math.floor(seededRoll(index + 121) * 8)
-      : status === "warning"
-        ? Math.floor(10 + seededRoll(index + 122) * 25)
-        : status === "maintenance"
-          ? 60 + Math.floor(seededRoll(index + 123) * 60)
-          : 0;
-
+function getEmptyStation(imd: ImdStation): Station {
   return {
     id: imd.id,
     name: imd.name,
@@ -554,24 +220,25 @@ function enrichImdStation(imd: ImdStation, index: number): Station {
     region: imd.region,
     latitude: imd.latitude,
     longitude: imd.longitude,
-    elevation,
-    status,
-    healthScore,
-    lastSync: new Date(
-      Date.now() - (offlineHours * 60 + syncMinutes) * 60 * 1000
-    ).toISOString(),
-    temperature,
-    humidity,
-    pressure,
-    communicationQuality,
-    batteryLevel,
-    sensorDrift,
+    elevation: 0,
+    status: "active",
+    healthScore: 85,
+    lastSync: new Date().toISOString(),
+    temperature: 0,
+    humidity: 0,
+    pressure: 0,
+    communicationQuality: 90,
+    batteryLevel: 80,
+    sensorDrift: 0.5,
   };
 }
 
-export const stations: Station[] = [...customStations, ...imdStations.map(enrichImdStation)];
+export const stations: Station[] = [
+  ...customStations,
+  ...imdStations.map(getEmptyStation),
+];
 
-export const anomalies: Anomaly[] = [
+export const demoAnomalies: Anomaly[] = [
   {
     id: "AN-001",
     stationId: "MH-042",
@@ -586,8 +253,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
     status: "new",
     assignedTo: "R. Sharma",
-    explanation:
-      "The reading is inconsistent with the station's recent pattern and with nearby stations. Pressure and humidity did not change in a way expected for a true local temperature event.",
+    explanation: "The reading is inconsistent with the station's recent pattern and with nearby stations. Pressure and humidity did not change in a way expected for a true local temperature event.",
     shapFeatures: [
       { feature: "Extreme deviation from rolling baseline", contribution: 0.35 },
       { feature: "Sudden rate of change", contribution: 0.28 },
@@ -596,7 +262,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Seasonal context", contribution: 0.07 },
     ],
     correctedValue: "29.4 °C",
-    readingHistory: generateStationReadings("MH-042", 24),
+    readingHistory: [],
   },
   {
     id: "AN-002",
@@ -612,8 +278,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
     status: "investigating",
     assignedTo: "A. Patel",
-    explanation:
-      "Pressure sensor has reported the identical value for 6 consecutive readings despite significant atmospheric changes. This suggests a stuck sensor or communication buffer issue.",
+    explanation: "Pressure sensor has reported the identical value for 6 consecutive readings despite significant atmospheric changes. This suggests a stuck sensor or communication buffer issue.",
     shapFeatures: [
       { feature: "Zero variance over extended window", contribution: 0.42 },
       { feature: "Correlated temperature drift", contribution: 0.22 },
@@ -621,7 +286,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Seasonal inconsistency", contribution: 0.10 },
       { feature: "Power supply fluctuation", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("RJ-018", 24),
+    readingHistory: [],
   },
   {
     id: "AN-003",
@@ -637,8 +302,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
     status: "new",
     assignedTo: "S. Verma",
-    explanation:
-      "The rate of humidity change far exceeds physically possible limits for the current season. Likely sensor contamination or a loose hygrometer cap.",
+    explanation: "The rate of humidity change far exceeds physically possible limits for the current season. Likely sensor contamination or a loose hygrometer cap.",
     shapFeatures: [
       { feature: "Excessive rate of change", contribution: 0.38 },
       { feature: "Temperature-pressure stability", contribution: 0.25 },
@@ -646,7 +310,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Seasonal context", contribution: 0.10 },
       { feature: "Sensor age", contribution: 0.07 },
     ],
-    readingHistory: generateStationReadings("GJ-019", 24),
+    readingHistory: [],
   },
   {
     id: "AN-004",
@@ -661,8 +325,7 @@ export const anomalies: Anomaly[] = [
     confidence: 76,
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
     status: "investigating",
-    explanation:
-      "The reading falls well outside the seasonal climatology for this location and time of day. Possible sensor cooling or calibration error.",
+    explanation: "The reading falls well outside the seasonal climatology for this location and time of day. Possible sensor cooling or calibration error.",
     shapFeatures: [
       { feature: "Seasonal deviation", contribution: 0.40 },
       { feature: "Diurnal pattern mismatch", contribution: 0.25 },
@@ -670,7 +333,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Sensor age", contribution: 0.12 },
       { feature: "Power anomaly", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("DL-007", 24),
+    readingHistory: [],
   },
   {
     id: "AN-005",
@@ -686,8 +349,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     status: "confirmed",
     assignedTo: "P. Kumar",
-    explanation:
-      "Temperature spike is not supported by pressure or humidity changes. The combination suggests a direct sensor fault rather than a true weather event.",
+    explanation: "Temperature spike is not supported by pressure or humidity changes. The combination suggests a direct sensor fault rather than a true weather event.",
     shapFeatures: [
       { feature: "Temperature-pressure divergence", contribution: 0.32 },
       { feature: "Humidity-temperature inconsistency", contribution: 0.28 },
@@ -696,7 +358,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Seasonal context", contribution: 0.08 },
     ],
     correctedValue: "26.8 °C",
-    readingHistory: generateStationReadings("KA-031", 24),
+    readingHistory: [],
   },
   {
     id: "AN-006",
@@ -711,8 +373,7 @@ export const anomalies: Anomaly[] = [
     confidence: 78,
     detectedAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
     status: "dismissed",
-    explanation:
-      "The reading was attributed to a localized fog event confirmed by local observation. Neighbouring stations are too far to capture the microclimate.",
+    explanation: "The reading was attributed to a localized fog event confirmed by local observation. Neighbouring stations are too far to capture the microclimate.",
     shapFeatures: [
       { feature: "Spatial outlier", contribution: 0.35 },
       { feature: "Localised weather validation", contribution: 0.30 },
@@ -720,7 +381,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Sensor health", contribution: 0.10 },
       { feature: "Seasonal context", contribution: 0.05 },
     ],
-    readingHistory: generateStationReadings("TN-025", 24),
+    readingHistory: [],
   },
   {
     id: "AN-007",
@@ -736,8 +397,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
     status: "new",
     assignedTo: "M. Das",
-    explanation:
-      "Complete communication failure. Battery level critically low (8%). Solar panel likely damaged by recent weather. Manual inspection required.",
+    explanation: "Complete communication failure. Battery level critically low (8%). Solar panel likely damaged by recent weather. Manual inspection required.",
     shapFeatures: [
       { feature: "Zero signal strength", contribution: 0.45 },
       { feature: "Battery voltage drop", contribution: 0.30 },
@@ -745,7 +405,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Temperature within range", contribution: 0.06 },
       { feature: "Previous packet loss trend", contribution: 0.04 },
     ],
-    readingHistory: generateStationReadings("AS-008", 24),
+    readingHistory: [],
   },
   {
     id: "AN-008",
@@ -761,8 +421,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     status: "investigating",
     assignedTo: "T. Banerjee",
-    explanation:
-      "Barometer reading has drifted consistently upward. The pattern matches known diaphragm fatigue in this sensor model. Replacement recommended.",
+    explanation: "Barometer reading has drifted consistently upward. The pattern matches known diaphragm fatigue in this sensor model. Replacement recommended.",
     shapFeatures: [
       { feature: "Linear drift over 72h", contribution: 0.38 },
       { feature: "Temperature compensation error", contribution: 0.24 },
@@ -770,7 +429,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Neighbouring station stability", contribution: 0.12 },
       { feature: "Humidity correlation", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("WB-014", 24),
+    readingHistory: [],
   },
   {
     id: "AN-009",
@@ -786,8 +445,7 @@ export const anomalies: Anomaly[] = [
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
     status: "confirmed",
     assignedTo: "N. Singh",
-    explanation:
-      "Value exceeds theoretical maximum for this location and season. Thermocouple likely shifted during maintenance. Recalibration needed before data can be trusted.",
+    explanation: "Value exceeds theoretical maximum for this location and season. Thermocouple likely shifted during maintenance. Recalibration needed before data can be trusted.",
     shapFeatures: [
       { feature: "Physical impossibility", contribution: 0.42 },
       { feature: "Thermocouple offset", contribution: 0.26 },
@@ -796,7 +454,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Neighbouring disagreement", contribution: 0.06 },
     ],
     correctedValue: "33.6 °C",
-    readingHistory: generateStationReadings("HR-011", 24),
+    readingHistory: [],
   },
   {
     id: "AN-010",
@@ -811,8 +469,7 @@ export const anomalies: Anomaly[] = [
     confidence: 81,
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 1.5).toISOString(),
     status: "new",
-    explanation:
-      "Hygrometer output frozen. Likely condensation on sensor or ADC latch-up. Cleaning and reset scheduled.",
+    explanation: "Hygrometer output frozen. Likely condensation on sensor or ADC latch-up. Cleaning and reset scheduled.",
     shapFeatures: [
       { feature: "Zero variance", contribution: 0.40 },
       { feature: "Temperature divergence", contribution: 0.22 },
@@ -820,7 +477,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Sensor age", contribution: 0.12 },
       { feature: "Seasonal context", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("OD-017", 24),
+    readingHistory: [],
   },
   {
     id: "AN-011",
@@ -835,8 +492,7 @@ export const anomalies: Anomaly[] = [
     confidence: 73,
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
     status: "dismissed",
-    explanation:
-      "Rate-of-change violation was caused by a passing cold front verified by satellite imagery. The reading is meteorologically valid.",
+    explanation: "Rate-of-change violation was caused by a passing cold front verified by satellite imagery. The reading is meteorologically valid.",
     shapFeatures: [
       { feature: "Excessive rate of change", contribution: 0.30 },
       { feature: "Frontal passage confirmation", contribution: 0.28 },
@@ -844,7 +500,7 @@ export const anomalies: Anomaly[] = [
       { feature: "Pressure drop correlation", contribution: 0.12 },
       { feature: "Sensor health", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("PB-015", 24),
+    readingHistory: [],
   },
   {
     id: "AN-012",
@@ -859,8 +515,7 @@ export const anomalies: Anomaly[] = [
     confidence: 65,
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
     status: "resolved",
-    explanation:
-      "Low pressure was associated with a distant depression. Corrected after verification with regional model output.",
+    explanation: "Low pressure was associated with a distant depression. Corrected after verification with regional model output.",
     shapFeatures: [
       { feature: "Spatial outlier", contribution: 0.32 },
       { feature: "Regional model validation", contribution: 0.28 },
@@ -869,34 +524,10 @@ export const anomalies: Anomaly[] = [
       { feature: "Seasonal context", contribution: 0.08 },
     ],
     correctedValue: "1014.8 hPa",
-    readingHistory: generateStationReadings("MP-029", 24),
+    readingHistory: [],
   },
   {
     id: "AN-013",
-    stationId: "JK-002",
-    stationName: "Srinagar Vale",
-    state: "Jammu and Kashmir",
-    parameter: "temperature",
-    observedValue: "16.4 °C, lower than expected for the valley",
-    expectedRange: "18.0 – 24.0 °C",
-    detectionType: "Seasonal inconsistency",
-    severity: "low",
-    confidence: 68,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 7).toISOString(),
-    status: "new",
-    explanation:
-      "The temperature is below the expected range for the season in this valley, but the signal remains close to local climatology and requires review against neighbouring stations.",
-    shapFeatures: [
-      { feature: "Seasonal deviation", contribution: 0.36 },
-      { feature: "Regional comparison", contribution: 0.24 },
-      { feature: "Null reading check", contribution: 0.18 },
-      { feature: "Sensor health", contribution: 0.14 },
-      { feature: "Thermal lag", contribution: 0.08 },
-    ],
-    readingHistory: generateStationReadings("JK-002", 24),
-  },
-  {
-    id: "AN-014",
     stationId: "MH-042",
     stationName: "Pune Observatory",
     state: "Maharashtra",
@@ -908,8 +539,7 @@ export const anomalies: Anomaly[] = [
     confidence: 79,
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
     status: "new",
-    explanation:
-      "Gradual warming trend detected that does not match regional synoptic patterns. Thermistor insulation likely degraded.",
+    explanation: "Gradual warming trend detected that does not match regional synoptic patterns. Thermistor insulation likely degraded.",
     shapFeatures: [
       { feature: "Gradual positive drift", contribution: 0.35 },
       { feature: "Regional temperature stable", contribution: 0.25 },
@@ -917,11 +547,11 @@ export const anomalies: Anomaly[] = [
       { feature: "Sensor age", contribution: 0.14 },
       { feature: "Diurnal pattern intact", contribution: 0.08 },
     ],
-    readingHistory: generateStationReadings("MH-042", 24),
+    readingHistory: [],
   },
 ];
 
-export const alerts: {
+export const demoAlerts: {
   id: string;
   stationId: string;
   stationName: string;
@@ -930,111 +560,68 @@ export const alerts: {
   timestamp: string;
 }[] = [
   {
-    id: "AL-001",
-    stationId: "MH-042",
-    stationName: "Pune Observatory",
-    type: "critical",
-    message: "Temperature spike detected — 55.0°C recorded",
+    id: "AL-001", stationId: "MH-042", stationName: "Pune Observatory",
+    type: "critical", message: "Temperature spike detected — 55.0°C recorded",
     timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
   },
   {
-    id: "AL-002",
-    stationId: "AS-008",
-    stationName: "Guwahati Hills",
-    type: "critical",
-    message: "Communication link down for 5 hours",
+    id: "AL-002", stationId: "AS-008", stationName: "Guwahati Hills",
+    type: "critical", message: "Communication link down for 5 hours",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   },
   {
-    id: "AL-003",
-    stationId: "RJ-018",
-    stationName: "Jaipur Central",
-    type: "warning",
-    message: "Frozen pressure value detected",
+    id: "AL-003", stationId: "RJ-018", stationName: "Jaipur Central",
+    type: "warning", message: "Frozen pressure value detected",
     timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
   },
   {
-    id: "AL-004",
-    stationId: "DL-007",
-    stationName: "Delhi Ridge",
-    type: "warning",
-    message: "Seasonal temperature inconsistency",
+    id: "AL-004", stationId: "DL-007", stationName: "Delhi Ridge",
+    type: "warning", message: "Seasonal temperature inconsistency",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
   },
   {
-    id: "AL-005",
-    stationId: "HR-011",
-    stationName: "Chandigarh Sector",
-    type: "warning",
-    message: "Station in maintenance mode",
+    id: "AL-005", stationId: "HR-011", stationName: "Chandigarh Sector",
+    type: "warning", message: "Station in maintenance mode",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
   },
 ];
 
-export const maintenanceTasks: MaintenanceTask[] = [
+export const demoMaintenanceTasks: MaintenanceTask[] = [
   {
-    id: "MT-001",
-    stationId: "HR-011",
-    stationName: "Chandigarh Sector",
+    id: "MT-001", stationId: "HR-011", stationName: "Chandigarh Sector",
     title: "Recalibrate temperature sensor after suspected failure",
-    priority: "high",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
-    completed: false,
-    assignedTo: "N. Singh",
-    anomalyId: "AN-009",
+    priority: "high", dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
+    completed: false, assignedTo: "N. Singh", anomalyId: "AN-009",
   },
   {
-    id: "MT-002",
-    stationId: "RJ-018",
-    stationName: "Jaipur Central",
+    id: "MT-002", stationId: "RJ-018", stationName: "Jaipur Central",
     title: "Inspect and clean pressure sensor housing",
-    priority: "high",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
-    completed: false,
-    assignedTo: "A. Patel",
-    anomalyId: "AN-002",
+    priority: "high", dueDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
+    completed: false, assignedTo: "A. Patel", anomalyId: "AN-002",
   },
   {
-    id: "MT-003",
-    stationId: "AS-008",
-    stationName: "Guwahati Hills",
+    id: "MT-003", stationId: "AS-008", stationName: "Guwahati Hills",
     title: "Replace solar panel and communication module",
-    priority: "high",
-    dueDate: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-    completed: false,
-    assignedTo: "M. Das",
-    anomalyId: "AN-007",
+    priority: "high", dueDate: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    completed: false, assignedTo: "M. Das", anomalyId: "AN-007",
   },
   {
-    id: "MT-004",
-    stationId: "WB-014",
-    stationName: "Kolkata Metro",
+    id: "MT-004", stationId: "WB-014", stationName: "Kolkata Metro",
     title: "Replace barometer diaphragm",
-    priority: "medium",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 72).toISOString(),
-    completed: false,
-    assignedTo: "T. Banerjee",
-    anomalyId: "AN-008",
+    priority: "medium", dueDate: new Date(Date.now() + 1000 * 60 * 60 * 72).toISOString(),
+    completed: false, assignedTo: "T. Banerjee", anomalyId: "AN-008",
   },
   {
-    id: "MT-005",
-    stationId: "GJ-019",
-    stationName: "Ahmedabad Industrial",
+    id: "MT-005", stationId: "GJ-019", stationName: "Ahmedabad Industrial",
     title: "Replace hygrometer cap and sensor",
-    priority: "medium",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
-    completed: false,
-    assignedTo: "S. Verma",
+    priority: "medium", dueDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
+    completed: false, assignedTo: "S. Verma",
   },
   {
-    id: "MT-006",
-    stationId: "OD-017",
-    stationName: "Bhubaneswar Temple",
+    id: "MT-006", stationId: "OD-017", stationName: "Bhubaneswar Temple",
     title: "Clean hygrometer and reset ADC",
-    priority: "low",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 120).toISOString(),
-    completed: false,
-    assignedTo: "R. Patnaik",
+    priority: "low", dueDate: new Date(Date.now() + 1000 * 60 * 60 * 120).toISOString(),
+    completed: false, assignedTo: "R. Patnaik",
   },
 ];
 
@@ -1047,64 +634,14 @@ export const regionStats: RegionStat[] = [
   { region: "Northeast", stationsOnline: 1, totalStations: 2, healthyObs: 45.0, activeAnomalies: 1, criticalStations: 1 },
 ];
 
-export function generateStationReadings(
-  stationId: string,
-  hours: number = 24
-): Reading[] {
-  const readings: Reading[] = [];
-  const now = Date.now();
-  const interval = (hours * 60 * 60 * 1000) / 24;
-  const station = stations.find((s) => s.id === stationId);
-
-  const baseTemp = station ? station.temperature : 25;
-  const baseHumidity = station ? station.humidity : 60;
-  const basePressure = station ? station.pressure : 1012;
-
-  for (let i = 0; i < 24; i++) {
-    const time = new Date(now - (23 - i) * interval);
-    const hour = time.getHours();
-    const dayProgress = i / 23;
-
-    const tempCycle = Math.sin((hour - 6) * Math.PI / 12) * 5;
-    const temp = +(baseTemp + tempCycle + (Math.random() - 0.5) * 2).toFixed(1);
-
-    const humidityCycle = -Math.sin((hour - 6) * Math.PI / 12) * 8;
-    const humidity = Math.min(
-      100,
-      Math.max(0, Math.round(baseHumidity + humidityCycle + (Math.random() - 0.5) * 4))
-    );
-
-    const pressureCycle = Math.sin(dayProgress * Math.PI * 2) * 3;
-    const pressure = +(basePressure + pressureCycle + (Math.random() - 0.5) * 1.5).toFixed(1);
-
-    const windSpeed = +(8 + Math.random() * 12).toFixed(1);
-
-    readings.push({
-      timestamp: time.toISOString(),
-      temperature: temp,
-      humidity,
-      pressure,
-      windSpeed,
-      expectedTemp: +(baseTemp + tempCycle).toFixed(1),
-      correctedTemp: stationId === "MH-042" && i === 20 ? 29.4 : undefined,
-    });
-  }
-
-  return readings;
-}
-
-export function generateReadings(stationId: string, hours: number = 24): Reading[] {
-  return generateStationReadings(stationId, hours);
-}
-
 export function getStationById(id: string): Station | undefined {
   return stations.find((s) => s.id === id);
 }
 
 export function getAnomalyById(id: string): Anomaly | undefined {
-  return anomalies.find((a) => a.id === id);
+  return demoAnomalies.find((a) => a.id === id);
 }
 
 export function getAnomaliesByStation(stationId: string): Anomaly[] {
-  return anomalies.filter((a) => a.stationId === stationId);
+  return demoAnomalies.filter((a) => a.stationId === stationId);
 }

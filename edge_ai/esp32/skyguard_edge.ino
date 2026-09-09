@@ -33,6 +33,11 @@ Serial monitor: 115200 baud
 #include <Wire.h>
 #include <Adafruit_BME280.h>
 #include <ArduinoJson.h>  // v6.x — install via Library Manager
+#ifdef ESP32
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <time.h>
+#endif
 
 // -------------------------- CONFIG --------------------------
 const unsigned long TICK_MS        = 2000;   // sampling interval
@@ -41,6 +46,22 @@ const float        Z_THRESH        = 2.5;    // z-score threshold
 const float        ANOMALY_THRESH  = 0.50;   // fused score threshold
 const float        WARNING_THRESH  = 0.30;
 const unsigned long DEEP_SLEEP_SEC  = 0;     // 0 = disable deep sleep
+
+// ---- Edge identity (set per physical node) ----
+const char* STATION_ID = "EDGE-PUNE-01";
+const float STATION_LAT = 18.5204;
+const float STATION_LON = 73.8567;
+const char* FW_VERSION = "skyguard-edge-v2";
+
+// ---- WiFi uplink (Option B: WiFi HTTP gateway) ----
+// Fill in before flashing a field node. Leave WIFI_SSID empty to run
+// in Serial-only mode (no WiFi, same behaviour as v1 firmware).
+const char* WIFI_SSID   = "";
+const char* WIFI_PASS   = "";
+const char* GATEWAY_URL = "http://192.168.1.10:3101/api/edge/ingest";
+const unsigned long POST_EVERY_N = 5;  // POST 1 in N ticks (every ~10s @2s tick)
+const long GMT_OFFSET_SEC = 19800;     // IST = UTC+5:30
+const int  DAYLIGHT_OFFSET_SEC = 0;
 
 // Physical limits
 const float T_LO = -10.0, T_HI = 60.0;
@@ -217,19 +238,66 @@ void impute(Reading* r, int hour) {
 }
 
 // -------------------------- JSON Output --------------------------
+// ISO-8601 wall-clock timestamp when NTP is synced, else millis fallback.
+String isoTimestamp(unsigned long tickCount) {
+#ifdef ESP32
+  if (strlen(WIFI_SSID) > 0 && WiFi.status() == WL_CONNECTED) {
+    struct tm tm;
+    if (getLocalTime(&tm, 50)) {
+      char buf[32];
+      strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S+05:30", &tm);
+      return String(buf);
+    }
+  }
+#endif
+  return String(tickCount);
+}
+
 String readingToJson(Reading* r, float score, bool anomaly, bool warning, String rootCause) {
-  StaticJsonDocument<512> doc;
-  doc["ts"] = r->ts;
+  StaticJsonDocument<768> doc;
+  doc["station_id"] = STATION_ID;
+  doc["ts"] = isoTimestamp(r->ts);
   doc["t"] = round(r->t, 2);
   doc["h"] = round(r->h, 1);
   doc["p"] = round(r->p, 1);
   doc["score"] = round(score, 3);
   doc["verdict"] = anomaly ? "ANOMALY" : (warning ? "WARNING" : "NORMAL");
   doc["root_cause"] = rootCause;
+  doc["lat"] = STATION_LAT;
+  doc["lon"] = STATION_LON;
+  doc["fw"] = FW_VERSION;
   String out;
   serializeJson(doc, out);
   return out;
 }
+
+#ifdef ESP32
+// -------------------------- WiFi uplink --------------------------
+bool wifiEnabled() { return strlen(WIFI_SSID) > 0; }
+
+void wifiConnect() {
+  if (!wifiEnabled() || WiFi.status() == WL_CONNECTED) return;
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) delay(250);
+  if (WiFi.status() == WL_CONNECTED) {
+    configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org", "time.nist.gov");
+  }
+}
+
+void postToGateway(const String& payload) {
+  if (!wifiEnabled() || WiFi.status() != WL_CONNECTED) return;
+  HTTPClient http;
+  http.begin(GATEWAY_URL);
+  http.addHeader("Content-Type", "application/json");
+  http.setTimeout(8000);
+  int code = http.POST(payload);
+  // Best-effort uplink: never block sensing on gateway errors.
+  (void)code;
+  http.end();
+}
+#endif
 
 // -------------------------- Setup / Loop --------------------------
 void setup() {
@@ -243,13 +311,26 @@ void setup() {
   if (DEEP_SLEEP_SEC > 0) {
     esp_sleep_enable_timer_wakeup(DEEP_SLEEP_SEC * 1000000ULL);
   }
+#ifdef ESP32
+  // NOTE: deep-sleep and WiFi uplink don't mix — the radio shuts down on
+  // sleep. Keep DEEP_SLEEP_SEC=0 on mains-powered gateway nodes.
+  wifiConnect();
+  Serial.print("{\"status\":\"ready\",\"fw\":\"");
+  Serial.print(FW_VERSION);
+  Serial.print("\",\"station_id\":\"");
+  Serial.print(STATION_ID);
+  Serial.println("\"}");
+#else
   Serial.println("{\"status\":\"ready\",\"fw\":\"skyguard-edge-v1\"}");
+#endif
 }
 
 void loop() {
   static unsigned long lastTick = 0;
+  static unsigned long tickCount = 0;
   if (millis() - lastTick < TICK_MS) return;
   lastTick = millis();
+  tickCount++;
 
   Reading r;
   r.t = bme.readTemperature();
@@ -282,7 +363,16 @@ void loop() {
     histHead = (histHead + 1) % HISTORY_MAX;
   }
 
-  Serial.println(readingToJson(&r, score, anomaly, warning, rootCause));
+  String payload = readingToJson(&r, score, anomaly, warning, rootCause);
+  Serial.println(payload);
+
+#ifdef ESP32
+  // Best-effort WiFi uplink: Serial always prints; gateway POST throttled.
+  if (wifiEnabled() && (tickCount % POST_EVERY_N == 0)) {
+    if (WiFi.status() != WL_CONNECTED) wifiConnect();
+    postToGateway(payload);
+  }
+#endif
 
   if (DEEP_SLEEP_SEC > 0) {
     esp_deep_sleep_start();

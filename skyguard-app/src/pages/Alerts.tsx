@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, CircleAlert, Clock, Search } from "lucide-react";
-import { alerts } from "@/lib/mock-data";
+import { demoAlerts as alerts } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

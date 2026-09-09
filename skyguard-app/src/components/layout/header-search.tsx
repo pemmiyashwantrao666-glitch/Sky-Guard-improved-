@@ -10,7 +10,7 @@ import {
   CornerDownLeft,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { stations, anomalies, alerts, type Station, type Anomaly } from "@/lib/mock-data";
+import { stations, demoAnomalies as anomalies, demoAlerts as alerts, type Station, type Anomaly } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useClickOutside } from "@/hooks/use-click-outside";
 

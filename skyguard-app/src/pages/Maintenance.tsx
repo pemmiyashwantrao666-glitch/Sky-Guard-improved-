@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { maintenanceTasks, anomalies, stations } from "@/lib/mock-data";
+import { demoMaintenanceTasks as maintenanceTasks, demoAnomalies as anomalies, stations } from "@/lib/mock-data";
 
 const PRIORITIES = ["high", "medium", "low"] as const;
 const STATUSES = ["pending", "completed"] as const;

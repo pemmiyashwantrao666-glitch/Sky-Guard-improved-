@@ -23,6 +23,16 @@ stream_out.txt
 *_out.txt
 *.log
 
+# Gateway runtime data
+gateway/*.db
+gateway/*.db-journal
+gateway/__pycache__/
+
+# Scratch files
+commit_msg.txt
+8
+tatus --short
+
 # Local env / secrets
 .env
 .env.*

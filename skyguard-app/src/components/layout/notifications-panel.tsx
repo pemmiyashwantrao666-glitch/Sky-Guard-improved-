@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, Bell, Check, Info } from "lucide-react";
-import { alerts } from "@/lib/mock-data";
+import { demoAlerts as alerts } from "@/lib/mock-data";
 import { timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
 

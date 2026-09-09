@@ -15,6 +15,7 @@ import {
   Bell,
   Info,
   MessageSquare,
+  Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const navItems = [
   { to: "/overview",     icon: LayoutDashboard, label: "Dashboard" },
   { to: "/stations",     icon: Radio,            label: "Weather Stations" },
   { to: "/network",      icon: CloudSun,         label: "Real-time Weather" },
+  { to: "/edge",         icon: Cpu,              label: "Edge AI Nodes" },
   { to: "/analytics",    icon: Activity,         label: "Sensor Health" },
   { to: "/anomalies",    icon: AlertTriangle,    label: "Anomalies" },
   { to: "/alerts",       icon: Bell,             label: "Alerts" },

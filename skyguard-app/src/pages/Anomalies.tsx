@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { anomalies as allAnomalies } from "@/lib/mock-data";
+import { demoAnomalies as allAnomalies } from "@/lib/mock-data";
 
 const STATUSES = ["new", "investigating", "confirmed", "dismissed", "resolved"] as const;
 const SEVERITIES = ["critical", "high", "medium", "low"] as const;

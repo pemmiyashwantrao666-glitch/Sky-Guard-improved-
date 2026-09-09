@@ -76,7 +76,7 @@ class AlertManager:
             "smtp_port": int(os.getenv("SKYGUARD_SMTP_PORT", "587")),
             "username": os.getenv("SKYGUARD_EMAIL_USER"),
             "password": os.getenv("SKYGUARD_EMAIL_PASS"),
-            "to_addrs": os.getenv("SKYGUARD_EMAIL_TO", "").split(","),
+            "to_addrs": os.getenv("SKYGUARD_EMAIL_TO", "admin.skyguardai@gmail.com").split(","),
         }
         self.sms_config = sms_config or {
             "url": os.getenv("SKYGUARD_SMS_URL"),

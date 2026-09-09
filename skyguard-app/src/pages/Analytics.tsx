@@ -33,9 +33,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { notifyAdminEvent } from "@/lib/edge-api";
 import {
   stations,
-  anomalies,
+  demoAnomalies as anomalies,
   regionStats,
 } from "@/lib/mock-data";
 
@@ -214,7 +215,7 @@ export function Analytics() {
     return Math.round((dismissed / anomalies.length) * 100);
   }, []);
 
-  const handleInject = () => {
+  const handleInject = async () => {
     const station = stations.find((s) => s.id === injectionForm.station);
     const id = `INJ-${Date.now().toString(36).toUpperCase()}`;
     const text = `[DEMO] ${injectionForm.type} on ${station?.name ?? injectionForm.station} — ${injectionForm.parameter} (${injectionForm.intensity})`;
@@ -222,6 +223,14 @@ export function Analytics() {
       { id, text, time: new Date().toLocaleTimeString() },
       ...prev,
     ]);
+    const intensity = injectionForm.intensity.toLowerCase();
+    await notifyAdminEvent({
+      kind: "demo-inject",
+      severity: intensity.includes("severe") || intensity.includes("extreme") ? "CRITICAL" : "WARNING",
+      station: injectionForm.station,
+      message: text,
+      details: `Fault injection lab: type=${injectionForm.type}, parameter=${injectionForm.parameter}, intensity=${injectionForm.intensity}`,
+    });
   };
 
   const handleResetStream = () => {

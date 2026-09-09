@@ -5,7 +5,7 @@ import { HeaderSearch } from "@/components/layout/header-search";
 import { NotificationsPanel } from "@/components/layout/notifications-panel";
 import { SettingsPopover } from "@/components/layout/settings-popover";
 import { UserMenu } from "@/components/layout/user-menu";
-import { alerts } from "@/lib/mock-data";
+import { demoAlerts as alerts } from "@/lib/mock-data";
 import { useClickOutside } from "@/hooks/use-click-outside";
 import { useMediaQuery } from "@/hooks/use-media-query";
 

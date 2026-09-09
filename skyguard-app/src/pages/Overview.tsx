@@ -24,7 +24,7 @@ import {
   Line,
   ResponsiveContainer,
 } from "recharts";
-import { stations, alerts, anomalies, generateReadings } from "@/lib/mock-data";
+import { stations, demoAlerts as alerts, demoAnomalies as anomalies } from "@/lib/mock-data";
 import { streamService } from "@/lib/stream";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
@@ -39,11 +39,16 @@ function latLngToXY(lat: number, lng: number) {
 }
 const INDIA_PATH = "M0 0";
 
-// Sparkline data
-const tempSparkData = generateReadings("t", 12).map((d) => ({ v: d.temperature }));
-const humidSparkData = generateReadings("h", 12).map((d) => ({ v: d.humidity }));
-const rainSparkData = generateReadings("r", 12).map((d) => ({ v: Math.abs(d.pressure - 1010) * 0.3 }));
-const windSparkData = generateReadings("w", 12).map((d) => ({ v: d.windSpeed }));
+// Sparkline data (deterministic decorative previews — live weather is served per station)
+function sparkSeries(phase: number, amplitude: number, baseline: number): { v: number }[] {
+  return Array.from({ length: 12 }, (_, i) => ({
+    v: Math.round((baseline + Math.sin(i / 1.7 + phase) * amplitude) * 10) / 10,
+  }));
+}
+const tempSparkData = sparkSeries(0, 3, 27);
+const humidSparkData = sparkSeries(1.2, 9, 58);
+const rainSparkData = sparkSeries(1.9, 2, 3);
+const windSparkData = sparkSeries(2.7, 6, 9);
 
 // Cache marker icons per status — recreating L.divIcon objects on every render
 // forces Leaflet to rebuild marker DOM nodes, which was a major source of lag.

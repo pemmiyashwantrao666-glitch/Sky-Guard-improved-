@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Navigation,
   Cloud,
+  Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -26,12 +27,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/time";
 import {
-  stations,
-  anomalies,
-  maintenanceTasks,
-  generateStationReadings,
-  type Station,
+  demoAnomalies,
+  demoMaintenanceTasks,
 } from "@/lib/mock-data";
+import { getStationsWithWeather, type StationWithWeather, getStationHourlyWeather } from "@/lib/station-service";
+import { subscribeEdgeStream } from "@/lib/edge-api";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -42,6 +42,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+
+const INDIA_BOUNDS = L.latLngBounds([6.0, 67.5], [37.7, 97.5]);
 
 const STATUS_COLORS: Record<string, string> = {
   active: "#3F8062",
@@ -62,15 +64,16 @@ const SENSOR_TYPES = ["temperature", "humidity", "pressure", "communication"];
 const SEVERITY_LEVELS = ["critical", "high", "medium", "low"];
 const CONNECTIVITY_LEVELS = ["excellent", "good", "fair", "poor"];
 
-function getConnectivityLevel(quality: number): string {
-  if (quality >= 90) return "excellent";
-  if (quality >= 70) return "good";
-  if (quality >= 40) return "fair";
-  return "poor";
+function getMarkerColor(temp: number | null): string {
+  if (temp === null) return "#7067A8";
+  if (temp < 15) return "#3B82F6";
+  if (temp < 25) return "#22C55E";
+  if (temp < 35) return "#EAB308";
+  return "#EF4444";
 }
 
-function createMarkerIcon(status: string, isSelected: boolean) {
-  const color = STATUS_COLORS[status] || "#7067A8";
+function createMarkerIcon(temperature: number | null, isSelected: boolean) {
+  const color = getMarkerColor(temperature);
   const size = isSelected ? 32 : 24;
   const border = isSelected ? 4 : 3;
   return L.divIcon({
@@ -83,19 +86,24 @@ function createMarkerIcon(status: string, isSelected: boolean) {
 
 function MapFlyTo({ position }: { position: [number, number] | null }) {
   const map = useMap();
-  if (position) {
-    map.flyTo(position, 8, { duration: 0.8 });
-  }
+  useEffect(() => {
+    if (position) {
+      map.flyTo(position, 8, { duration: 0.8 });
+    }
+  }, [position, map]);
   return null;
 }
 
 export function Network() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+  const [selectedStation, setSelectedStation] = useState<StationWithWeather | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showLayers, setShowLayers] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [stationsData, setStationsData] = useState<StationWithWeather[]>([]);
+  const [tempReadings, setTempReadings] = useState<{timestamp: string; temperature: number}[]>([]);
 
   const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [filterRegion, setFilterRegion] = useState<string[]>([]);
@@ -109,37 +117,42 @@ export function Network() {
   const [layerTemperature, setLayerTemperature] = useState(false);
   const [layerBoundaries, setLayerBoundaries] = useState(false);
 
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const data = await getStationsWithWeather();
+      setStationsData(data);
+      setLoading(false);
+    }
+    load();
+    // Live edge overlay: gateway SSE patches edge stations in place.
+    const unsub = subscribeEdgeStream((reading) => {
+      setStationsData((prev) =>
+        prev.map((st) =>
+          st.id === reading.station_id
+            ? { ...st, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: 'active' as const, lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
+            : st
+        )
+      );
+      setSelectedStation((cur) =>
+        cur && cur.id === reading.station_id
+          ? { ...cur, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: 'active' as const, lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
+          : cur
+      );
+    });
+    return () => unsub();
+  }, []);
+
   const filteredStations = useMemo(() => {
-    return stations.filter((s) => {
+    return stationsData.filter((s) => {
       const matchesSearch =
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         s.id.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        filterStatus.length === 0 || filterStatus.includes(s.status);
       const matchesRegion =
         filterRegion.length === 0 || filterRegion.includes(s.region);
-      const matchesConnectivity =
-        filterConnectivity.length === 0 ||
-        filterConnectivity.includes(getConnectivityLevel(s.communicationQuality));
-
-      const stationAnomalies = anomalies.filter((a) => a.stationId === s.id);
-      const matchesSensor =
-        filterSensor.length === 0 ||
-        stationAnomalies.some((a) => filterSensor.includes(a.parameter));
-      const matchesSeverity =
-        filterSeverity.length === 0 ||
-        stationAnomalies.some((a) => filterSeverity.includes(a.severity));
-
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesRegion &&
-        matchesSensor &&
-        matchesSeverity &&
-        matchesConnectivity
-      );
+      return matchesSearch && matchesRegion;
     });
-  }, [search, filterStatus, filterRegion, filterSensor, filterSeverity, filterConnectivity]);
+  }, [stationsData, search, filterRegion]);
 
   const toggleFilter = useCallback(
     (arr: string[], value: string, setter: (v: string[]) => void) => {
@@ -151,18 +164,32 @@ export function Network() {
   );
 
   const stationAnomalies = selectedStation
-    ? anomalies.filter((a) => a.stationId === selectedStation.id)
+    ? demoAnomalies.filter((a) => a.stationId === selectedStation.id)
     : [];
 
   const stationMaintenance = selectedStation
-    ? maintenanceTasks.filter((m) => m.stationId === selectedStation.id)
+    ? demoMaintenanceTasks.filter((m) => m.stationId === selectedStation.id)
     : [];
 
-  const tempReadings = selectedStation
-    ? generateStationReadings(selectedStation.id, 24)
-    : [];
+  useEffect(() => {
+    let cancelled = false;
+    async function loadReadings() {
+      if (!selectedStation) return;
+      setTempReadings([]); // clear the previous station's data immediately
+      const readings = await getStationHourlyWeather(selectedStation.id, 24);
+      if (!cancelled) {
+        setTempReadings(
+          readings.map((r) => ({ timestamp: r.timestamp, temperature: r.temperature }))
+        );
+      }
+    }
+    loadReadings();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedStation]);
 
-  const handleMarkerClick = useCallback((station: Station) => {
+  const handleMarkerClick = useCallback((station: StationWithWeather) => {
     setSelectedStation(station);
     setMapCenter([station.latitude, station.longitude]);
   }, []);
@@ -181,6 +208,14 @@ export function Network() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
+      {loading && (
+        <div className="absolute inset-0 z-[2000] flex items-center justify-center bg-white/80">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-deep-atmo" />
+            <p className="text-sm text-graphite">Loading weather data...</p>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between border-b border-cloud-grey bg-white px-4 py-3 lg:px-6">
         <div>
           <h1 className="font-serif text-2xl font-bold text-ink-navy">
@@ -318,6 +353,10 @@ export function Network() {
           <MapContainer
             center={[20.5937, 78.9629]}
             zoom={5}
+            maxBounds={INDIA_BOUNDS}
+            maxBoundsViscosity={0.8}
+            minZoom={4}
+            maxZoom={18}
             className="h-full w-full"
             scrollWheelZoom
           >
@@ -337,7 +376,7 @@ export function Network() {
                 key={station.id}
                 position={[station.latitude, station.longitude]}
                 icon={createMarkerIcon(
-                  station.status,
+                  station.temperature,
                   selectedStation?.id === station.id
                 )}
                 eventHandlers={{
@@ -488,14 +527,16 @@ function StationDrawer({
   onClose,
   onOpenProfile,
 }: {
-  station: Station;
-  anomalies: typeof import("@/lib/mock-data").anomalies;
-  maintenance: typeof import("@/lib/mock-data").maintenanceTasks;
-  readings: ReturnType<typeof generateStationReadings>;
+  station: StationWithWeather;
+  anomalies: typeof import("@/lib/mock-data").demoAnomalies;
+  maintenance: typeof import("@/lib/mock-data").demoMaintenanceTasks;
+  readings: { timestamp: string; temperature: number }[];
   onClose: () => void;
   onOpenProfile: () => void;
 }) {
   const statusColor = STATUS_COLORS[station.status];
+  // StationWithWeather carries no health score — derive it from the live status.
+  const healthScore = station.status === "active" ? 92 : 18;
 
   return (
     <div className="p-5 lg:p-6">
@@ -526,13 +567,7 @@ function StationDrawer({
       <div className="mb-4 flex flex-wrap gap-2">
         <Badge
           variant={
-            station.status === "active"
-              ? "success"
-              : station.status === "warning"
-                ? "warning"
-                : station.status === "offline"
-                  ? "destructive"
-                  : "secondary"
+            station.status === "active" ? "success" : "destructive"
           }
           className="capitalize"
         >
@@ -541,6 +576,7 @@ function StationDrawer({
         <Badge variant="outline" className="capitalize">
           {station.region}
         </Badge>
+        {station.source === 'edge' && (<Badge variant='outline'>{station.edge ? ('EDGE ' + station.edge.verdict) : 'EDGE'}</Badge>)}
       </div>
 
       <div className="mb-5 grid grid-cols-2 gap-3">
@@ -562,7 +598,7 @@ function StationDrawer({
         <InfoItem
           icon={<Clock className="h-3.5 w-3.5" />}
           label="Last Sync"
-          value={timeAgo(station.lastSync)}
+          value={timeAgo(station.lastUpdate)}
         />
       </div>
 
@@ -595,27 +631,27 @@ function StationDrawer({
           <span
             className={cn(
               "text-sm font-bold",
-              station.healthScore >= 80
+              healthScore >= 80
                 ? "text-healthy-green"
-                : station.healthScore >= 50
+                : healthScore >= 50
                   ? "text-signal-amber"
                   : "text-alert-coral"
             )}
           >
-            {station.healthScore}%
+            {healthScore}%
           </span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-cloud-grey">
           <div
             className={cn(
               "h-full rounded-full transition-all",
-              station.healthScore >= 80
+              healthScore >= 80
                 ? "bg-healthy-green"
-                : station.healthScore >= 50
+                : healthScore >= 50
                   ? "bg-signal-amber"
                   : "bg-alert-coral"
             )}
-            style={{ width: `${station.healthScore}%` }}
+            style={{ width: `${healthScore}%` }}
           />
         </div>
         <div className="mt-2 flex justify-between text-[10px] text-graphite/40">
@@ -625,11 +661,11 @@ function StationDrawer({
         </div>
       </Card>
 
-      {readings.length > 0 && (
-        <Card className="mb-5 border-cloud-grey p-4">
-          <p className="mb-3 text-xs font-medium text-graphite/70">
-            Temperature Trend (24h)
-          </p>
+      <Card className="mb-5 border-cloud-grey p-4">
+        <p className="mb-3 text-xs font-medium text-graphite/70">
+          Temperature Trend (24h)
+        </p>
+        {readings.length > 0 ? (
           <div className="h-28 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={readings}>
@@ -651,12 +687,14 @@ function StationDrawer({
                     const numericValue = Array.isArray(value) ? value[0] : value;
                     return [`${numericValue ?? 0}°C`, "Temp"];
                   }}
-                  labelFormatter={(label) =>
-                    new Date(String(label)).toLocaleTimeString([], {
+                  labelFormatter={(label) => {
+                    const match = /T(\d{2}:\d{2})/.exec(String(label));
+                    if (match) return match[1];
+                    return new Date(String(label)).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
-                    })
-                  }
+                    });
+                  }}
                 />
                 <Area
                   type="monotone"
@@ -668,8 +706,12 @@ function StationDrawer({
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </Card>
-      )}
+        ) : (
+          <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-cloud-grey text-xs text-graphite/40">
+            Live 24h trend unavailable for this station
+          </div>
+        )}
+      </Card>
 
       {stationAnoms.length > 0 && (
         <Card className="mb-5 border-cloud-grey p-4">

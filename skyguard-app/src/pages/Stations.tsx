@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { stations, alerts, maintenanceTasks } from "@/lib/mock-data";
+import { stations, demoAlerts as alerts, demoMaintenanceTasks as maintenanceTasks } from "@/lib/mock-data";
 import { ImdWeatherPanel } from "@/components/imd/imd-weather-panel";
 
 const statusConfig = {
