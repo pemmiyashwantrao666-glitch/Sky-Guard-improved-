@@ -1,16 +1,12 @@
-# Deploying SkyGuard — GitHub + Vercel + Custom Domain
+# Deploying SkyGuard — Free Hosting (GitHub Pages + Vercel free domain)
 
-Production hosting guide for the **SkyGuard React dashboard** (`skyguard-app/`).
+Free hosting guide for the **SkyGuard React dashboard** (`skyguard-app/`).
 
-**Pipeline:** push to GitHub `main` → Vercel Git integration builds & deploys automatically → your custom domain serves the app with free auto-renewing HTTPS.
-
-> ⚠️ **Domain availability warning — `skyguard.app` is taken.**
-> Verified via RDAP on 2026-09-21: registered **2023-08-19** through **GoDaddy** (Google Registry), renews through **2027-08-19**, currently in auto-renew with transfer/update locks, DNS on Cloudflare, resolving to an AWS EC2 host (3.132.212.171). You cannot register it. Options:
-> 1. **Pick an alternative** (instant, ~$14–20/yr for `.app`): e.g. `skyguardai.app`, `skyguard-ai.app`, `getskyguard.app`, `skyguard.live`, `skyguardai.com`, `skyguard-ai.com` — check availability at [domains.google](https://domains.google) / [Namecheap](https://namecheap.com) / [GoDaddy](https://godaddy.com).
-> 2. **Buy it from the owner** (aftermarket): use [GoDaddy Domain Broker](https://www.godaddy.com/domain-broker), [Sedo](https://sedo.com), or [Afternic](https://afternic.com). Expect an offer-negotiation; short brandable `.app` names often run $500–$5,000+.
-> 3. **If you actually already own it** (e.g. bought it earlier), skip to Step 3 — the DNS records below are all you need.
+> **No custom domain, no cost.** The app deploys to free URLs:
+> - **GitHub Pages (live now):** `https://pemmiyashwantrao666-glitch.github.io/Sky-Guard-improved-/`
+> - **Vercel (optional second free host):** import the repo → you get `https://<project>.vercel.app`
 >
-> Everything below works identically for **any** domain you own — substitute your domain wherever `skyguard.app` appears.
+> **Pipeline:** push to GitHub `main` → GitHub Actions builds & publishes to Pages automatically (free HTTPS included). Optionally, Vercel Git integration builds & deploys the same code to its free `*.vercel.app` domain.
 
 ---
 
@@ -31,13 +27,13 @@ The dashboard is fully functional standalone: all data is simulated client-side.
 
 The repo is already pushed to `origin` (`main`). This deployment prep was committed and pushed:
 
-- `skyguard-app/vite.config.ts` — asset `base` is now env-driven: `/` by default (Vercel/custom domain), `/Sky-Guard-improved-/` on GitHub Pages (via `VITE_BASE_PATH`, set in `.github/workflows/deploy.yml`).
-- `skyguard-app/vercel.json` — SPA rewrites (deep links like `/anomalies/3` work) + immutable asset caching + security headers.
-- `.github/workflows/deploy.yml` — GitHub Pages deploy keeps working unchanged.
+- `skyguard-app/vite.config.ts` — asset `base` is env-driven: `/` by default (Vercel free `*.vercel.app` domain), `/Sky-Guard-improved-/` on GitHub Pages (via `VITE_BASE_PATH`, set in `.github/workflows/deploy.yml`).
+- `skyguard-app/vercel.json` — SPA rewrites (deep links like `/anomalies/3` work on the free Vercel domain) + immutable asset caching + security headers.
+- `.github/workflows/deploy.yml` — GitHub Pages deploy (the current live free link) + SPA fallback (`404.html`).
 
-> Note: Vercel and the GitHub Pages workflow both deploy on every push to `main`. Keep both, or disable Pages in **repo Settings → Pages** once Vercel is live.
+## Step 2 — Free hosting links
 
-## Step 2 — Import the repo into Vercel
+**GitHub Pages (already live, free):**
 
 **Option A — Dashboard (recommended, ~2 minutes):**
 
@@ -45,7 +41,7 @@ The repo is already pushed to `origin` (`main`). This deployment prep was commit
 2. **Add New… → Project**, then **Import** `pemmiyashwantrao666-glitch/Sky-Guard-improved-`.
 3. Expand **Build and Output Settings → Root Directory** → set to **`skyguard-app`** *(important — the Vite app lives in a subfolder; Vercel auto-detects the Vite framework preset there)*.
 4. (Optional) **Environment Variables** — see table below.
-5. **Deploy**. First build takes ~1–2 min. You get a live URL like `sky-guard-improved.vercel.app`.
+5. **Deploy**. First build takes ~1–2 min. You get a live free URL like `sky-guard-improved.vercel.app` — HTTPS included, no custom domain needed.
 
 **Option B — CLI:**
 
@@ -63,49 +59,32 @@ vercel --prod            # production deploy
 |---|---|---|
 | `VITE_EDGE_API_URL` | No | Only if you deploy the Python gateway (Step 6). Default falls back to `http://localhost:3101`. e.g. `https://skyguard-gateway.onrender.com` |
 | `VITE_IMD_API_URL` | No | Only if you self-host the IMD weather API. Default `http://localhost:5000` |
-| `VITE_BASE_PATH` | **Leave unset** | Must stay unset on Vercel — the default `/` is correct for a custom domain |
+| `VITE_BASE_PATH` | **Leave unset** | Must stay unset on Vercel — the default `/` is correct for the free `*.vercel.app` domain |
 
-Every push to `main` now auto-deploys to production; every PR gets its own preview URL.
+Every push to `main` now auto-deploys to production (GitHub Pages) and to Vercel if connected; every PR gets its own Vercel preview URL.
 
-## Step 3 — Connect your custom domain
+> **No custom domain is used anywhere** — both live links are free (`*.github.io` and `*.vercel.app`). If you ever buy a domain later, you can add it in Vercel **Project → Settings → Domains** (free to attach, HTTPS auto-provisioned).
 
-1. **Buy the domain first** at any registrar (see warning above for `skyguard.app` alternatives).
-2. In Vercel: **Project → Settings → Domains → Add** → enter `skyguard.app` → also add `www.skyguard.app` and redirect `www` → apex.
-3. Vercel shows exactly which DNS records to create. At your registrar's DNS panel, add:
+## Step 3 — Post-deploy checklist
 
-   | Type | Name / Host | Value | TTL |
-   |---|---|---|---|
-   | `A` | `@` (apex) | `76.76.21.21` | Auto/3600 |
-   | `CNAME` | `www` | `cname.vercel-dns.com.` | Auto/3600 |
-
-   *(If you use Cloudflare for DNS instead: set the same records, disable the orange-cloud proxy for these two records — or enable proxy with SSL mode "Full (strict)".)*
-4. Wait for propagation (usually minutes, up to 48 h; check with `nslookup skyguard.app` — it should return `76.76.21.21`).
-5. **HTTPS is automatic.** Vercel provisions a Let's Encrypt certificate for both the apex and `www`. This is mandatory for `.app` — the TLD is on the HSTS preload list, so browsers refuse plain HTTP. Nothing to configure; Vercel handles renewal forever.
-6. Verify: `https://skyguard.app` loads the SkyGuard landing page; `https://skyguard.app/anomalies` deep-link works; certificate shows valid.
-
-**Alternative — full DNS migration:** instead of A/CNAME records you can point your domain's nameservers to Vercel's (`ns1.vercel-dns.com`, `ns2.vercel-dns.com`) and manage records in the Vercel dashboard. Only do this if the domain won't be used for other services.
-
-## Step 4 — Post-deploy checklist
-
-- [ ] Landing page loads at the apex domain over HTTPS
-- [ ] Login → Overview → Stations → Anomalies all navigate (SPA rewrites working)
+- [ ] Landing page loads over HTTPS on the free link(s)
+- [ ] Login → Overview → Stations → Anomalies all navigate (SPA rewrites/fallback working)
 - [ ] Hard-refresh on a deep link (e.g. `/settings`) doesn't 404
-- [ ] `www.` redirects to apex
-- [ ] Vercel → Deployments shows the latest `main` commit green
-- [ ] GitHub Pages disabled (Settings → Pages) if you don't want the duplicate deploy
+- [ ] Vercel → Deployments shows the latest `main` commit green (if connected)
+- [ ] GitHub Actions `Deploy to GitHub Pages` run is green
 
-## Step 5 — Cost summary
+## Step 4 — Cost summary
 
 | Item | Cost |
 |---|---|
-| Vercel Hobby | **Free** (personal, non-commercial; 100 GB bandwidth/mo, auto-HTTPS) |
-| Domain `.app` | ~$14–20/yr (registration) — or aftermarket price for `skyguard.app` |
-| Custom domain on Vercel | Free |
+| GitHub Pages | **Free** (public repo, auto-HTTPS) |
+| Vercel Hobby | **Free** (personal, non-commercial; 100 GB bandwidth/mo, auto-HTTPS, free `*.vercel.app` domain) |
+| Custom domain | **None — not used** |
 | HTTPS certificates | Free, auto-renewed |
 
 Commercial use requires Vercel Pro ($20/user/mo). Hobby terms don't allow a company-run product on the free tier.
 
-## Step 6 — (Optional) live gateway behind the dashboard
+## Step 5 — (Optional) live gateway behind the dashboard
 
 `VITE_EDGE_API_URL` feeds the Edge-Nodes page, SSE stream, complaint emailer and simulator. Since Vercel can't host the Python gateway, either:
 
@@ -122,12 +101,9 @@ Until then, the site is fully demo-capable with its built-in local simulation �
 ## Quick reference — commands
 
 ```powershell
-# Push a change → auto-deploys to Vercel (and Pages) within ~2 min
+# Push a change → auto-deploys to GitHub Pages (and Vercel if connected) within ~2 min
 git add -A ; git commit -m "feat: change" ; git push origin main
 
-# Manual CLI deploy (must be inside skyguard-app/)
+# Manual Vercel deploy to the free *.vercel.app domain (must be inside skyguard-app/)
 vercel --prod
-
-# Check DNS propagation for your domain
-nslookup skyguard.app
 ```

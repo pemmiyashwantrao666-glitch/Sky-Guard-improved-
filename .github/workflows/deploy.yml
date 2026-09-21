@@ -32,7 +32,7 @@ jobs:
         run: npm run build
         env:
           # GitHub Pages serves the app under a repo sub-path; keep asset URLs correct.
-          # (Vercel / custom-domain deploys need no env var — vite.config.ts defaults to "/")
+          # (Free Vercel *.vercel.app deploys need no env var — vite.config.ts defaults to "/")
           VITE_BASE_PATH: /Sky-Guard-improved-/
       # Pages has no SPA rewrites; serving index.html as 404.html makes
       # hard refreshes / direct links to sub-routes (e.g. /overview) work.

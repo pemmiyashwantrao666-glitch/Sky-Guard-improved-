@@ -102,7 +102,7 @@ npm run dev        # Vite dev server, by default http://localhost:5173
 
 A TypeScript + React 19 + Vite + Tailwind + Leaflet + Recharts + Three.js console. It includes a SkyGuard-branded landing page with a 3D sensor-network globe, Login, Overview, Live Network, Weather Stations, Anomalies, Analytics/Sensor Health, Alerts, Reports, Maintenance, Complaints & Support, Settings (including Users & Roles), About System, and Documentation. Dashboard data is simulated locally; the Overview anomaly panel refreshes from the three-second frontend stream. The Python engine remains the reference detector and is not connected to the React UI yet. Production build: `npm run build` (output in `skyguard-app/dist/`), preview with `npm run preview`.
 
-**Deployment:** see **[DEPLOY.md](DEPLOY.md)** for the production-hosting guide — GitHub → Vercel import, custom-domain DNS records, HTTPS for `.app` domains, and options for the Python gateway.
+**Deployment:** see **[DEPLOY.md](DEPLOY.md)** for the free-hosting guide — GitHub Pages live link, optional Vercel free `*.vercel.app` domain, and options for the Python gateway. No custom domain is used.
 
 ### 5. (Optional) ESP32 edge firmware
 
