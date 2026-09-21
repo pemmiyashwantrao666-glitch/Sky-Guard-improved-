@@ -1,4 +1,4 @@
-import { imdStationsWithOverrides as imdStations, type ImdStation } from "./imd-stations";
+import { imdStations, type ImdStation } from "./imd-stations";
 import {
   fetchCurrentWeather,
   fetchCurrentWeatherBulk,
