@@ -551,6 +551,106 @@ export const demoAnomalies: Anomaly[] = [
   },
 ];
 
+/**
+ * Deterministic hourly readings for the 24h window before each demo anomaly
+ * was detected. A seeded generator keeps charts stable across reloads, and
+ * the flagged signal is injected into the tail so the evidence chart actually
+ * shows what the detector raised.
+ */
+function buildAnomalyReadingHistory(anomaly: Anomaly): Reading[] {
+  const seed = [...anomaly.id].reduce((n, ch) => n + ch.charCodeAt(0), 0);
+  const rand = (i: number) => {
+    const x = Math.sin(seed * 12.9898 + i * 78.233) * 43758.5453;
+    return x - Math.floor(x); // 0..1, deterministic per (anomaly, point)
+  };
+
+  const detected = new Date(anomaly.detectedAt).getTime();
+  const history: Reading[] = [];
+  for (let i = 23; i >= 0; i--) {
+    const ts = detected - i * 60 * 60 * 1000;
+    const hour = new Date(ts).getHours();
+    // Smooth diurnal baseline — this doubles as the "Expected" reference line.
+    const wave = Math.sin(((hour - 14) / 24) * Math.PI * 2);
+    const temperature = 27 + 4 * wave + (rand(i) - 0.5) * 1.2;
+    const humidity = Math.min(96, Math.max(35, 66 - 7 * wave + (rand(i + 40) - 0.5) * 4));
+    const pressure = 1010 + 2.2 * wave + (rand(i + 80) - 0.5) * 1.4;
+    history.push({
+      timestamp: new Date(ts).toISOString(),
+      temperature: Number(temperature.toFixed(1)),
+      humidity: Number(humidity.toFixed(1)),
+      pressure: Number(pressure.toFixed(1)),
+      windSpeed: Number((6 + (rand(i + 120) - 0.5) * 5).toFixed(1)),
+      expectedTemp: Number((27 + 4 * wave).toFixed(1)),
+    });
+  }
+
+  // Inject the flagged signal into the tail of the affected parameter.
+  const observed = Number((anomaly.observedValue.match(/-?\d+(\.\d+)?/) || [])[0]);
+  const isFrozen = /frozen|stuck|no data/i.test(
+    `${anomaly.observedValue} ${anomaly.detectionType}`
+  );
+  const idxFrom = history.length - (isFrozen ? 4 : 2);
+
+  for (let i = idxFrom; i < history.length; i++) {
+    const r = history[i];
+    const last = i === history.length - 1;
+    switch (anomaly.parameter) {
+      case "temperature": {
+        if (Number.isFinite(observed) && observed > -40 && observed < 70) {
+          r.temperature = observed; // absolute value e.g. "55.0 °C"
+        } else if (Number.isFinite(observed)) {
+          // Relative magnitude (e.g. "Drop of 12°C") → offset from baseline.
+          const down = /drop|fall|decreas|lower/i.test(anomaly.observedValue);
+          const base = r.expectedTemp ?? 27;
+          r.temperature = Number((down ? base - observed : base + observed).toFixed(1));
+        } else {
+          r.temperature = Number(((r.expectedTemp ?? 27) + 9).toFixed(1));
+        }
+        if (last && anomaly.correctedValue) {
+          const corrected = Number(anomaly.correctedValue.match(/-?\d+(\.\d+)?/)?.[0]);
+          if (Number.isFinite(corrected)) r.correctedTemp = corrected;
+        }
+        break;
+      }
+      case "humidity": {
+        if (Number.isFinite(observed) && observed > 0 && observed <= 100) {
+          r.humidity = observed; // absolute value e.g. "Stuck at 80.0%"
+        } else if (Number.isFinite(observed)) {
+          // Relative drop/rise in % → scale the baseline.
+          const down = /drop|fall|decreas/i.test(anomaly.observedValue);
+          r.humidity = Number(
+            (r.humidity * (down ? 1 - observed / 100 : 1 + observed / 100)).toFixed(1)
+          );
+        }
+        break;
+      }
+      case "pressure": {
+        if (Number.isFinite(observed) && observed >= 850 && observed <= 1080) {
+          r.pressure = observed; // absolute value e.g. "991.2 hPa"
+        } else if (Number.isFinite(observed)) {
+          // Gradual drift given as a delta (e.g. "+4.2 hPa over 72h").
+          r.pressure = Number((r.pressure + observed).toFixed(1));
+        }
+        break;
+      }
+      case "communication": {
+        // "No data for hours" → the last packets repeat (stale buffer).
+        const stale = history[Math.max(0, idxFrom - 1)];
+        r.temperature = stale.temperature;
+        r.humidity = stale.humidity;
+        r.pressure = stale.pressure;
+        break;
+      }
+    }
+  }
+  return history;
+}
+
+// Populate the evidence series for every demo anomaly.
+demoAnomalies.forEach((anomaly) => {
+  anomaly.readingHistory = buildAnomalyReadingHistory(anomaly);
+});
+
 export const demoAlerts: {
   id: string;
   stationId: string;

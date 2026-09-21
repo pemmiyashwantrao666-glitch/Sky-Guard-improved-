@@ -45,10 +45,12 @@ import {
 
 const INDIA_BOUNDS = L.latLngBounds([6.0, 67.5], [37.7, 97.5]);
 
+// Marker colours mirror each station's operational state:
+// green = active, yellow = warning, red = offline, purple = maintenance.
 const STATUS_COLORS: Record<string, string> = {
-  active: "#3F8062",
-  warning: "#D99532",
-  offline: "#C85D3A",
+  active: "#2F9E68",
+  warning: "#E3B341",
+  offline: "#D64550",
   maintenance: "#7067A8",
 };
 
@@ -64,21 +66,15 @@ const SENSOR_TYPES = ["temperature", "humidity", "pressure", "communication"];
 const SEVERITY_LEVELS = ["critical", "high", "medium", "low"];
 const CONNECTIVITY_LEVELS = ["excellent", "good", "fair", "poor"];
 
-function getMarkerColor(temp: number | null): string {
-  if (temp === null) return "#7067A8";
-  if (temp < 15) return "#3B82F6";
-  if (temp < 25) return "#22C55E";
-  if (temp < 35) return "#EAB308";
-  return "#EF4444";
-}
-
-function createMarkerIcon(temperature: number | null, isSelected: boolean) {
-  const color = getMarkerColor(temperature);
+function createMarkerIcon(status: string, isSelected: boolean) {
+  const color = STATUS_COLORS[status] ?? STATUS_COLORS.maintenance;
   const size = isSelected ? 32 : 24;
   const border = isSelected ? 4 : 3;
+  // Stations without telemetry render slightly muted.
+  const opacity = status === "offline" ? 0.85 : 1;
   return L.divIcon({
     className: "custom-marker",
-    html: `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;border:${border}px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:all 0.2s;"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:${color};opacity:${opacity};border-radius:50%;border:${border}px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:all 0.2s;"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -130,13 +126,13 @@ export function Network() {
       setStationsData((prev) =>
         prev.map((st) =>
           st.id === reading.station_id
-            ? { ...st, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: 'active' as const, lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
+            ? { ...st, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: reading.verdict === 'NORMAL' ? ('active' as const) : ('warning' as const), lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
             : st
         )
       );
       setSelectedStation((cur) =>
         cur && cur.id === reading.station_id
-          ? { ...cur, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: 'active' as const, lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
+          ? { ...cur, temperature: reading.t, humidity: reading.h, pressure: reading.p, status: reading.verdict === 'NORMAL' ? ('active' as const) : ('warning' as const), lastUpdate: reading.received_at || reading.ts, edge: { verdict: reading.verdict, score: reading.score, rootCause: reading.root_cause, ageSec: 0 } }
           : cur
       );
     });
@@ -150,9 +146,20 @@ export function Network() {
         s.id.toLowerCase().includes(search.toLowerCase());
       const matchesRegion =
         filterRegion.length === 0 || filterRegion.includes(s.region);
-      return matchesSearch && matchesRegion;
+      const matchesStatus =
+        filterStatus.length === 0 || filterStatus.includes(s.status);
+      return matchesSearch && matchesRegion && matchesStatus;
     });
-  }, [stationsData, search, filterRegion]);
+  }, [stationsData, search, filterRegion, filterStatus]);
+
+  // Per-status counts shown next to the legend swatches.
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of filteredStations) {
+      counts[s.status] = (counts[s.status] ?? 0) + 1;
+    }
+    return counts;
+  }, [filteredStations]);
 
   const toggleFilter = useCallback(
     (arr: string[], value: string, setter: (v: string[]) => void) => {
@@ -176,6 +183,7 @@ export function Network() {
     async function loadReadings() {
       if (!selectedStation) return;
       setTempReadings([]); // clear the previous station's data immediately
+      if (selectedStation.status === "offline") return; // no live trend while dark
       const readings = await getStationHourlyWeather(selectedStation.id, 24);
       if (!cancelled) {
         setTempReadings(
@@ -224,6 +232,23 @@ export function Network() {
           <p className="text-sm text-graphite/60">
             Real-time weather station monitoring across India
           </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            {Object.entries(STATUS_COLORS).map(([status, color]) => (
+              <span
+                key={status}
+                className="flex items-center gap-1.5 rounded-full border border-cloud-grey px-2 py-0.5 text-[11px] font-medium text-graphite/80"
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                {STATUS_LABELS[status] ?? status}
+                <span className="font-semibold text-graphite">
+                  {statusCounts[status] ?? 0}
+                </span>
+              </span>
+            ))}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -371,12 +396,27 @@ export function Network() {
               />
             )}
             <MapFlyTo position={mapCenter} />
-            {filteredStations.map((station) => (
+            {/* Non-active stations are drawn LAST so their markers stack on
+                top of co-located green ones (several IMD stations share exact
+                coordinates with custom stations — without this, an overlapping
+                active marker would hide offline/maintenance/warning dots). */}
+            {[
+              ...filteredStations.filter((s) => s.status === "active"),
+              ...filteredStations.filter(
+                (s) =>
+                  s.status === "warning" ||
+                  s.status === "offline" ||
+                  s.status === "maintenance"
+              ),
+            ].map((station) => (
               <Marker
                 key={station.id}
                 position={[station.latitude, station.longitude]}
+                zIndexOffset={
+                  station.status === "active" ? -500 : 500
+                }
                 icon={createMarkerIcon(
-                  station.temperature,
+                  station.status,
                   selectedStation?.id === station.id
                 )}
                 eventHandlers={{
@@ -389,15 +429,18 @@ export function Network() {
           <div className="pointer-events-none absolute bottom-4 left-4 z-[1000]">
             <Card className="pointer-events-auto p-3">
               <p className="mb-2 text-xs font-medium text-graphite/70">Status Legend</p>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex min-w-[132px] flex-col gap-1.5">
                 {Object.entries(STATUS_COLORS).map(([status, color]) => (
                   <div key={status} className="flex items-center gap-2">
                     <div
                       className="h-3 w-3 rounded-full border border-white shadow-sm"
                       style={{ backgroundColor: color }}
                     />
-                    <span className="text-xs text-graphite/70 capitalize">
-                      {status}
+                    <span className="text-xs text-graphite/70">
+                      {STATUS_LABELS[status] ?? status}
+                    </span>
+                    <span className="ml-auto text-xs font-semibold text-graphite/50">
+                      {statusCounts[status] ?? 0}
                     </span>
                   </div>
                 ))}
@@ -534,9 +577,16 @@ function StationDrawer({
   onClose: () => void;
   onOpenProfile: () => void;
 }) {
-  const statusColor = STATUS_COLORS[station.status];
+  const statusColor = STATUS_COLORS[station.status] ?? STATUS_COLORS.maintenance;
   // StationWithWeather carries no health score — derive it from the live status.
-  const healthScore = station.status === "active" ? 92 : 18;
+  const healthScore =
+    station.status === "active"
+      ? 92
+      : station.status === "warning"
+        ? 58
+        : station.status === "maintenance"
+          ? 65
+          : 18;
 
   return (
     <div className="p-5 lg:p-6">
@@ -567,7 +617,13 @@ function StationDrawer({
       <div className="mb-4 flex flex-wrap gap-2">
         <Badge
           variant={
-            station.status === "active" ? "success" : "destructive"
+            station.status === "active"
+              ? "success"
+              : station.status === "warning"
+                ? "warning"
+                : station.status === "maintenance"
+                  ? "secondary"
+                  : "destructive"
           }
           className="capitalize"
         >
@@ -610,17 +666,17 @@ function StationDrawer({
           <ReadingItem
             icon={<Thermometer className="h-4 w-4 text-alert-coral" />}
             label="Temperature"
-            value={`${station.temperature}°C`}
+            value={station.temperature !== null ? `${station.temperature}°C` : "—"}
           />
           <ReadingItem
             icon={<Droplets className="h-4 w-4 text-sky-blue" />}
             label="Humidity"
-            value={`${station.humidity}%`}
+            value={station.humidity !== null ? `${station.humidity}%` : "—"}
           />
           <ReadingItem
             icon={<Gauge className="h-4 w-4 text-deep-atmo" />}
             label="Pressure"
-            value={`${station.pressure} hPa`}
+            value={station.pressure !== null ? `${station.pressure} hPa` : "—"}
           />
         </div>
       </Card>

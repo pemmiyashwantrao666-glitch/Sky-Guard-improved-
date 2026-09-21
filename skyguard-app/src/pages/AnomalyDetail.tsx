@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -164,9 +164,21 @@ export function AnomalyDetail() {
       .slice(0, 5);
   }, [station]);
 
+  // Default the parameter toggles to the flagged parameter so the evidence
+  // chart opens on the signal the detector raised.
+  useEffect(() => {
+    if (!anomaly) return;
+    setSelectedParams(
+      anomaly.parameter === "communication"
+        ? ["temperature"]
+        : [anomaly.parameter]
+    );
+  }, [anomaly]);
+
   const chartData = useMemo(() => {
     if (!anomaly?.readingHistory) return [];
-    return anomaly.readingHistory.map((r) => ({
+    // Respect the 6h/24h/7d/30d switch (history is hourly, 24 points).
+    return anomaly.readingHistory.slice(-timeRange).map((r) => ({
       ...r,
       time: new Date(r.timestamp).toLocaleTimeString([], {
         hour: "2-digit",
@@ -177,7 +189,7 @@ export function AnomalyDetail() {
         day: "numeric",
       }),
     }));
-  }, [anomaly]);
+  }, [anomaly, timeRange]);
 
   if (!anomaly) {
     return (
@@ -464,6 +476,28 @@ export function AnomalyDetail() {
                           stroke="#102A43"
                           strokeWidth={2}
                           name="Observed"
+                          dot={false}
+                          activeDot={{ r: 5, fill: "#C85D3A" }}
+                        />
+                      )}
+                      {selectedParams.includes("humidity") && (
+                        <Line
+                          type="monotone"
+                          dataKey="humidity"
+                          stroke="#6BAED6"
+                          strokeWidth={2}
+                          name="Humidity"
+                          dot={false}
+                          activeDot={{ r: 5, fill: "#C85D3A" }}
+                        />
+                      )}
+                      {selectedParams.includes("pressure") && (
+                        <Line
+                          type="monotone"
+                          dataKey="pressure"
+                          stroke="#7067A8"
+                          strokeWidth={2}
+                          name="Pressure"
                           dot={false}
                           activeDot={{ r: 5, fill: "#C85D3A" }}
                         />

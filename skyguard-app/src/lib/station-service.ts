@@ -1,4 +1,5 @@
 import { imdStations, type ImdStation } from "./imd-stations";
+import { demoAnomalies } from "./mock-data";
 import {
   fetchCurrentWeather,
   fetchCurrentWeatherBulk,
@@ -26,7 +27,8 @@ function toEdgeStationWithWeather(base: StationBase, r: EdgeReading): StationWit
     // Edge nodes carry no anemometer — wind comes from the model fallback.
     windSpeed: null,
     weatherCode: null,
-    status: "active",
+    // Edge verdict drives the status colour: anything not NORMAL flags warning.
+    status: r.verdict === "NORMAL" ? "active" : "warning",
     lastUpdate: r.received_at || r.ts,
     edge: {
       verdict: r.verdict,
@@ -55,7 +57,8 @@ export interface StationWithWeather extends StationBase {
   pressure: number | null;
   windSpeed: number | null;
   weatherCode: number | null;
-  status: "active" | "offline";
+  /** Operational state shown on the map: active | warning | offline | maintenance. */
+  status: "active" | "warning" | "offline" | "maintenance";
   lastUpdate: string;
   /** Present when the values came from a physical ESP32 edge node. */
   edge?: {
@@ -184,6 +187,48 @@ function toOfflineStation(station: StationBase): StationWithWeather {
   };
 }
 
+/**
+ * Demo operational overrides so the live map exercises every station state.
+ * "offline" stations report no telemetry at all; "maintenance" stations keep
+ * streaming readings but are flagged until their open demo tasks are cleared.
+ */
+const STATION_STATUS_OVERRIDES: Record<string, "offline" | "maintenance"> = {
+  "AS-008": "offline", // Guwahati Hills — communication link down (AL-002)
+  "TR-004": "offline", // Agartala Hills — telemetry outage
+  "JH-024": "offline", // Ranchi Plateau — telemetry outage
+  "HR-011": "maintenance", // Chandigarh Sector — recalibration visit (MT-001)
+  "WB-014": "maintenance", // Kolkata Metro — barometer replacement (MT-004)
+  "OD-017": "maintenance", // Bhubaneswar Temple — hygrometer service (MT-006)
+};
+
+const WARNING_SEVERITIES = new Set(["critical", "high"]);
+const OPEN_ANOMALY_STATUSES = new Set(["new", "investigating", "confirmed"]);
+
+/** Stations with an open high/critical demo anomaly count as "warning". */
+function hasOpenWarningAnomaly(stationId: string): boolean {
+  return demoAnomalies.some(
+    (a) =>
+      a.stationId === stationId &&
+      WARNING_SEVERITIES.has(a.severity) &&
+      OPEN_ANOMALY_STATUSES.has(a.status)
+  );
+}
+
+/** Layer the demo operational state on top of the fetched weather snapshot. */
+function applyStatusOverride(station: StationWithWeather): StationWithWeather {
+  const override = STATION_STATUS_OVERRIDES[station.id];
+  if (override === "offline") {
+    return toOfflineStation({ ...station });
+  }
+  if (override === "maintenance") {
+    return { ...station, status: "maintenance" };
+  }
+  if (station.status === "active" && hasOpenWarningAnomaly(station.id)) {
+    return { ...station, status: "warning" };
+  }
+  return station;
+}
+
 // Open-Meteo accepts ~100 comma-separated coordinates per request while staying
 // well under URL-length limits, so the whole network costs ~12 requests instead
 // of one request per station (which trips the API rate limit and floods the
@@ -267,7 +312,9 @@ export async function getStationsWithWeather(): Promise<StationWithWeather[]> {
     }
   }
 
-  return results;
+  // Apply demo operational state (offline / maintenance / warning) so the map
+  // shows all four station states instead of only active/offline.
+  return results.map((s) => (s ? applyStatusOverride(s) : s));
 }
 
 export async function getStationWithWeather(
@@ -279,17 +326,7 @@ export async function getStationWithWeather(
     try {
       const reading = await fetchEdgeLatest(base.id);
       if (reading && isEdgeReadingFresh(reading, EDGE_FRESH_SEC)) {
-        return toEdgeStationWithWeather(base, reading);
-      }
-    } catch {
-      /* gateway unreachable - Open-Meteo fallback below */
-    }
-  }
-  if (base.source === "edge") {
-    try {
-      const reading = await fetchEdgeLatest(base.id);
-      if (reading && isEdgeReadingFresh(reading, EDGE_FRESH_SEC)) {
-        return toEdgeStationWithWeather(base, reading);
+        return applyStatusOverride(toEdgeStationWithWeather(base, reading));
       }
     } catch {
       /* gateway unreachable - Open-Meteo fallback below */
@@ -299,7 +336,7 @@ export async function getStationWithWeather(
   const cacheKey = `${base.latitude.toFixed(4)},${base.longitude.toFixed(4)}`;
   const cached = getCachedWeather(cacheKey);
   if (cached) {
-    return {
+    return applyStatusOverride({
       ...base,
       temperature: cached.temperature,
       humidity: cached.humidity,
@@ -308,13 +345,13 @@ export async function getStationWithWeather(
       weatherCode: cached.weatherCode,
       status: "active",
       lastUpdate: cached.timestamp,
-    };
+    });
   }
 
   const weather = await fetchCurrentWeather(base.latitude, base.longitude);
   if (weather) {
     setCachedWeather(cacheKey, weather);
-    return {
+    return applyStatusOverride({
       ...base,
       temperature: weather.temperature,
       humidity: weather.humidity,
@@ -323,10 +360,10 @@ export async function getStationWithWeather(
       weatherCode: weather.weatherCode,
       status: "active",
       lastUpdate: weather.timestamp,
-    };
+    });
   }
 
-  return {
+  return applyStatusOverride({
     ...base,
     temperature: null,
     humidity: null,
@@ -335,7 +372,7 @@ export async function getStationWithWeather(
     weatherCode: null,
     status: "offline",
     lastUpdate: "",
-  };
+  });
 }
 
 export async function getStationHourlyWeather(
