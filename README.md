@@ -102,6 +102,8 @@ npm run dev        # Vite dev server, by default http://localhost:5173
 
 A TypeScript + React 19 + Vite + Tailwind + Leaflet + Recharts + Three.js console. It includes a SkyGuard-branded landing page with a 3D sensor-network globe, Login, Overview, Live Network, Weather Stations, Anomalies, Analytics/Sensor Health, Alerts, Reports, Maintenance, Complaints & Support, Settings (including Users & Roles), About System, and Documentation. Dashboard data is simulated locally; the Overview anomaly panel refreshes from the three-second frontend stream. The Python engine remains the reference detector and is not connected to the React UI yet. Production build: `npm run build` (output in `skyguard-app/dist/`), preview with `npm run preview`.
 
+**Deployment:** see **[DEPLOY.md](DEPLOY.md)** for the production-hosting guide — GitHub → Vercel import, custom-domain DNS records, HTTPS for `.app` domains, and options for the Python gateway.
+
 ### 5. (Optional) ESP32 edge firmware
 
 See [§8 — Edge AI — ESP32 Deployment](#8-edge-ai--esp32-deployment) for full details. Short version: install the **esp32** board package and the **Adafruit BME280** library in Arduino IDE, open `edge_ai/esp32/skyguard_edge.ino`, select *ESP32 Dev Module*, upload, and watch JSON anomaly verdicts on the Serial Monitor at **115200 baud**. Wiring: BME280 VCC → 3V3, GND → GND, SDA → GPIO21, SCL → GPIO22.

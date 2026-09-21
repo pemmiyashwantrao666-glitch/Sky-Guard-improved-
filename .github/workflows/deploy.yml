@@ -30,6 +30,10 @@ jobs:
       - name: Build
         working-directory: skyguard-app
         run: npm run build
+        env:
+          # GitHub Pages serves the app under a repo sub-path; keep asset URLs correct.
+          # (Vercel / custom-domain deploys need no env var — vite.config.ts defaults to "/")
+          VITE_BASE_PATH: /Sky-Guard-improved-/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
