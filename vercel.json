@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix skyguard-app install",
+  "buildCommand": "npm --prefix skyguard-app run build",
+  "outputDirectory": "skyguard-app/dist",
+  "framework": "vite",
+  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
+}
