@@ -43,3 +43,7 @@ tatus --short
 .idea/
 .DS_Store
 Thumbs.db
+
+# Temp verification files
+*-check.txt
+build-verify.log
