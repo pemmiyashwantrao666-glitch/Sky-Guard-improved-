@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ElementType } from "react";
 import {
@@ -25,6 +25,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { stations, demoAlerts as alerts, demoAnomalies as anomalies } from "@/lib/mock-data";
+import { getStationsWithWeather, type StationWithWeather } from "@/lib/station-service";
 import { streamService } from "@/lib/stream";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
@@ -367,9 +368,34 @@ function AnomalyDetectionPanel({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+/** Mean of the readings that resolved; `null` while loading or when none are usable. */
+function averageOf(values: (number | null)[]): number | null {
+  const nums = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  return nums.length ? nums.reduce((a, v) => a + v, 0) / nums.length : null;
+}
+
 export function Overview() {
   const [hoveredStation, setHoveredStation] = useState<string | null>(null);
   const [showAnomalyPanel, setShowAnomalyPanel] = useState(true);
+  // Weather is fetched from Open-Meteo (the mock catalog ships with zeroed
+  // readings), so the bottom strip must average live values to show anything.
+  const [liveStations, setLiveStations] = useState<StationWithWeather[]>([]);
+  const [liveLoading, setLiveLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const data = await getStationsWithWeather();
+      if (!cancelled) {
+        setLiveStations(data);
+        setLiveLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const activeCount = stations.filter((s) => s.status === "active").length;
   const warnCount = stations.filter((s) => s.status === "warning").length;
@@ -379,8 +405,14 @@ export function Overview() {
   const alertCount = alerts.length;
   const critAlerts = alerts.filter((a) => a.type === "critical").length;
   const avgHealth = Math.round(stations.reduce((s, x) => s + x.healthScore, 0) / stations.length);
-  const avgTemp = (stations.reduce((s, x) => s + x.temperature, 0) / stations.length).toFixed(1);
-  const avgHumid = Math.round(stations.reduce((s, x) => s + x.humidity, 0) / stations.length);
+  const liveById = useMemo(() => new Map(liveStations.map((s) => [s.id, s])), [liveStations]);
+  const avgTemp = averageOf(liveStations.map((s) => s.temperature));
+  const avgHumid = averageOf(liveStations.map((s) => s.humidity));
+
+  // "Loading…" instead of a blank card while the first payload is in flight —
+  // a missing reading must never be rendered as a real 0 °C / 0 %.
+  const tempValue = avgTemp !== null ? `${avgTemp.toFixed(1)}°C` : liveLoading ? "Loading…" : "—";
+  const humidValue = avgHumid !== null ? `${Math.round(avgHumid)}%` : liveLoading ? "Loading…" : "—";
 
   const dateStr = new Date().toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" });
 
@@ -478,15 +510,23 @@ export function Overview() {
                 attribution='Tiles &copy; Esri, Sources: Esri, Garmin, FAO, NOAA, USGS, OpenStreetMap contributors'
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
               />
-              {stations.map((station) => (
-                <Marker key={station.id} position={[station.latitude, station.longitude]} icon={createOverviewMarkerIcon(station.status)}>
-                  <Popup>
-                    <strong>{station.name}</strong><br />
-                    {station.state} · {station.healthScore}% health<br />
-                    {station.temperature.toFixed(1)}°C · {station.humidity}% RH · {station.pressure.toFixed(1)} hPa
-                  </Popup>
-                </Marker>
-              ))}
+              {stations.map((station) => {
+                // Same reading source as the KPI strip: live weather when it has
+                // resolved, otherwise an explicit dash rather than a fake zero.
+                const live = liveById.get(station.id);
+                const temp = live?.temperature ?? null;
+                const humid = live?.humidity ?? null;
+                const pressure = live?.pressure ?? null;
+                return (
+                  <Marker key={station.id} position={[station.latitude, station.longitude]} icon={createOverviewMarkerIcon(station.status)}>
+                    <Popup>
+                      <strong>{station.name}</strong><br />
+                      {station.state} · {station.healthScore}% health<br />
+                      {temp !== null ? `${temp.toFixed(1)}°C` : "—"} · {humid !== null ? `${Math.round(humid)}%` : "—"} RH · {pressure !== null ? `${pressure.toFixed(1)} hPa` : "—"}
+                    </Popup>
+                  </Marker>
+                );
+              })}
             </MapContainer>
 
             <svg
@@ -633,8 +673,8 @@ export function Overview() {
       {/* Bottom weather strip */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Temperature (Avg)", value: `${avgTemp}°C`, icon: Thermometer, data: tempSparkData, color: "#f59e0b" },
-          { label: "Humidity (Avg)", value: `${avgHumid}%`, icon: Droplets, data: humidSparkData, color: "#3b82f6" },
+          { label: "Temperature (Avg)", value: tempValue, icon: Thermometer, data: tempSparkData, color: "#f59e0b" },
+          { label: "Humidity (Avg)", value: humidValue, icon: Droplets, data: humidSparkData, color: "#3b82f6" },
           { label: "Rainfall (Today)", value: "12.4 mm", icon: CloudRain, data: rainSparkData, color: "#06b6d4" },
           { label: "Wind Speed (Avg)", value: "14.2 km/h", icon: Wind, data: windSparkData, color: "#8b5cf6" },
         ].map(({ label, value, icon: Icon, data, color }) => (
