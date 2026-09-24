@@ -44,7 +44,7 @@ import {
   type Reading,
 } from "@/lib/mock-data";
 import { streamService } from "@/lib/stream";
-import { getStationHourlyWeather } from "@/lib/station-service";
+import { getStationHourlyWeather, getStationWithWeather } from "@/lib/station-service";
 import { subscribeEdgeStream } from "@/lib/edge-api";
 
 const fadeUp = {
@@ -141,6 +141,17 @@ export function StationDetail() {
     { timestamp: string; temperature: number; humidity: number; pressure: number; windSpeed: number }[]
   >([]);
   const [currentReadings, setCurrentReadings] = useState<{ temperature: number; humidity: number; pressure: number } | null>(null);
+  // Baseline snapshot for the header cards: the cached/live Open-Meteo
+  // reading for this station, so we never paint the mock-data placeholder
+  // zeros as if they were real measurements. Keyed by station id so a stale
+  // snapshot never leaks across profile navigations (same idea as apiHistory).
+  const [liveSnapshot, setLiveSnapshot] = useState<{
+    stationId: string;
+    temperature: number | null;
+    humidity: number | null;
+    pressure: number | null;
+    resolved: boolean;
+  } | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
 
   const stationAnomalies = useMemo(
@@ -178,6 +189,35 @@ export function StationDetail() {
       }
     }
     loadHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  // Fetch the current live snapshot on mount so the header cards show real
+  // readings immediately (independent of the streaming subscription below).
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSnapshot() {
+      if (!id) return;
+      let temperature: number | null = null;
+      let humidity: number | null = null;
+      let pressure: number | null = null;
+      try {
+        const live = await getStationWithWeather(id);
+        if (live) {
+          temperature = live.temperature;
+          humidity = live.humidity;
+          pressure = live.pressure;
+        }
+      } catch {
+        /* unreachable API - keep nulls so the cards render an em dash */
+      }
+      if (!cancelled) {
+        setLiveSnapshot({ stationId: id, temperature, humidity, pressure, resolved: true });
+      }
+    }
+    loadSnapshot();
     return () => {
       cancelled = true;
     };
@@ -271,6 +311,15 @@ export function StationDetail() {
 
   const statusBadge = statusConfig[station.status] || statusConfig.offline;
 
+  // Live readings win; otherwise the fetched snapshot. Mock `station.*` is
+  // always zero now, so it is never rendered as a measurement — show "—".
+  const snapshot = liveSnapshot && liveSnapshot.stationId === id ? liveSnapshot : null;
+  const displayTemp = currentReadings?.temperature ?? snapshot?.temperature ?? null;
+  const displayHumid = currentReadings?.humidity ?? snapshot?.humidity ?? null;
+  const displayPress = currentReadings?.pressure ?? snapshot?.pressure ?? null;
+  const snapshotPending = displayTemp === null && !snapshot?.resolved;
+  const showLiveTag = streaming && currentReadings !== null;
+
   const formatChartTooltipLabel = (value: ReactNode) => {
     if (value == null || value === "") return "";
     if (Array.isArray(value)) return value.join(", ");
@@ -350,28 +399,28 @@ export function StationDetail() {
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Temperature</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {currentReadings?.temperature ?? station.temperature}°C
+            {displayTemp !== null ? `${displayTemp.toFixed(1)}°C` : snapshotPending ? "…" : "—"}
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Thermometer className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Current"}
+            <Thermometer className="h-3 w-3" /> {showLiveTag ? "Live" : "Current"}
           </p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Humidity</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {currentReadings?.humidity ?? station.humidity}%
+            {displayHumid !== null ? `${Math.round(displayHumid)}%` : snapshotPending ? "…" : "—"}
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Droplets className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Relative"}
+            <Droplets className="h-3 w-3" /> {showLiveTag ? "Live" : "Relative"}
           </p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-graphite/60 uppercase tracking-wide">Pressure</p>
           <p className="mt-1 flex items-baseline gap-1 text-2xl font-bold text-ink-navy">
-            {currentReadings?.pressure ?? station.pressure} hPa
+            {displayPress !== null ? `${displayPress.toFixed(1)} hPa` : snapshotPending ? "…" : "—"}
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-graphite/60">
-            <Gauge className="h-3 w-3" /> {streaming && currentReadings ? "Live" : "Atmospheric"}
+            <Gauge className="h-3 w-3" /> {showLiveTag ? "Live" : "Atmospheric"}
           </p>
         </Card>
         <Card className="p-4">

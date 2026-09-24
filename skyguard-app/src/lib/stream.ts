@@ -45,7 +45,7 @@ class WeatherPoller {
   }
 
   private async poll() {
-    for (const [stationId, listener] of this.listeners) {
+    for (const stationId of this.listeners.keys()) {
       const base = getStationBaseById(stationId);
       if (!base) continue;
 
@@ -57,7 +57,9 @@ class WeatherPoller {
           stationName: base.name,
           state: base.state,
         };
-        listener(data);
+        // Read the listener back after the request resolves: subscribing
+        // while the first fetch is already in flight must not drop it.
+        this.listeners.get(stationId)?.(data);
       }
     }
   }
