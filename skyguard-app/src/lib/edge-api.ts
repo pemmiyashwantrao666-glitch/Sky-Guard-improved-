@@ -196,3 +196,33 @@ export async function stopEdgeSimulation(): Promise<{ ok: boolean; error?: strin
     return { ok: false, error: "Gateway unreachable" };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Station Management API
+// ---------------------------------------------------------------------------
+
+export interface Station {
+  station_id: string;
+  source: 'NOAA' | 'IMD' | 'ERA5' | 'ESP32';
+  lat: number | null;
+  lon: number | null;
+  elevation: number | null;
+  status: 'HEALTHY' | 'WARNING' | 'CRITICAL' | 'OFFLINE' | 'UNKNOWN';
+  last_seen: string | null;
+  anomaly_count: number;
+  created_at: string;
+}
+
+/** Fetch all registered stations */
+export async function getStations(): Promise<Station[]> {
+  const data = await getJson<{ ok: boolean; stations?: Station[] }>('/api/stations');
+  return data?.stations ?? [];
+}
+
+/** Fetch single station detail */
+export async function getStation(stationId: string): Promise<Station | null> {
+  const data = await getJson<{ ok: boolean; station?: Station }>(
+    `/api/stations/${encodeURIComponent(stationId)}`
+  );
+  return data?.station ?? null;
+}
