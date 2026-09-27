@@ -13,15 +13,13 @@ import {
   ChevronRight,
   ShieldAlert,
   ArrowUpRight,
-  TrendingUp,
   X,
   Thermometer,
   Droplets,
   Gauge,
-  Sparkles,
-  Pause,
-  Play,
-  SkipForward,
+  CheckCircle2,
+  Cpu,
+  Zap,
 } from "lucide-react";
 import {
   AreaChart,
@@ -47,8 +45,6 @@ const LNG_MIN = 68, LNG_MAX = 97;
 function latLngToXY(lat: number, lng: number) {
   return { x: ((lng - LNG_MIN) / (LNG_MAX - LNG_MIN)) * MAP_W, y: ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * MAP_H };
 }
-
-const INDIA_PATH = "M0 0";
 
 const statusColor: Record<string, string> = {
   active: "#22c55e",
@@ -158,14 +154,27 @@ function DonutChart({ value, size = 120 }: { value: number; size?: number }) {
   );
 }
 
-// Top Anomaly Detection Banner (Dynamic & Real-Time)
+// ── Original Anomaly Detection Banner with Live Dynamic updates ───────────────
 function AnomalyDetectionPanel({ onDismiss }: { onDismiss: () => void }) {
   const navigate = useNavigate();
-  const [edgeData, setEdgeData] = useState<EdgeReading | null>(null);
-  const [streamConnected, setStreamConnected] = useState(false);
-  const [anomalyIdx, setAnomalyIdx] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [liveEdge, setLiveEdge] = useState<EdgeReading | null>(null);
   const [tick, setTick] = useState(0);
+
+  // Subscribe to live SSE stream if available
+  useEffect(() => {
+    const unsub = subscribeEdgeStream((data) => {
+      setLiveEdge(data);
+    });
+    return unsub;
+  }, []);
+
+  // Dynamic ticker to cycle anomalies and animate confidence in real time
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTick((t) => t + 1);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const unresolved = useMemo(
     () =>
@@ -175,233 +184,211 @@ function AnomalyDetectionPanel({ onDismiss }: { onDismiss: () => void }) {
     []
   );
 
-  // Subscribe to real-time Edge SSE stream from gateway
-  useEffect(() => {
-    const unsub = subscribeEdgeStream(
-      (data) => {
-        setEdgeData(data);
-        setStreamConnected(true);
-      },
-      () => {
-        setStreamConnected(false);
-      }
-    );
-    return unsub;
-  }, []);
+  if (unresolved.length === 0) return null;
 
-  // Dynamic interval to cycle active anomalies and advance live ticks
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTick((t) => t + 1);
-      if (!isPaused && unresolved.length > 0) {
-        setAnomalyIdx((prev) => (prev + 1) % unresolved.length);
-      }
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [isPaused, unresolved.length]);
+  const baseTarget = unresolved[tick % unresolved.length];
+  if (!baseTarget) return null;
 
-  const targetAnomaly = unresolved[anomalyIdx % unresolved.length] || anomalies[0];
+  // Real-time values
+  const liveObserved = liveEdge
+    ? `${liveEdge.t.toFixed(1)}°C`
+    : baseTarget.observedValue;
 
-  // Derive dynamic telemetry combining live edge readings & active anomaly
-  const dynamicStation = edgeData?.station_id || targetAnomaly.stationName;
-  const dynamicScore = edgeData?.score
-    ? Math.min(99.4, Math.max(65.0, edgeData.score * 100))
-    : Math.min(99.4, Math.round(targetAnomaly.confidence) + ((tick % 3) - 1) * 0.4);
-
-  const isLiveEdgeAnomaly = edgeData && edgeData.verdict !== "NORMAL";
-  const displaySensor = edgeData?.root_cause || targetAnomaly.parameter;
-  const displayObserved = edgeData
-    ? `${edgeData.t.toFixed(1)}°C / ${edgeData.h.toFixed(0)}% / ${edgeData.p.toFixed(0)}hPa`
-    : `${targetAnomaly.observedValue}`;
-  const displayExpected = edgeData ? "25.0°C / 60% / 1013hPa" : `${targetAnomaly.expectedRange}`;
-
-  const causes: Record<string, string> = {
-    temperature: "Rapid thermistor drift or direct solar heat sink displacement",
-    humidity: "Capacitive polymer hygrometer sensor condensation or moisture ingress",
-    pressure: "Piezoresistive diaphragm blockage or barometric pressure shock",
-    rainfall: "Tipping-bucket optical reed switch friction or particulate obstruction",
-    wind_speed: "Anemometer bearing drag or ultrasonic transducer ice buildup",
+  const target = {
+    ...baseTarget,
+    stationName: liveEdge ? (liveEdge.station_id || baseTarget.stationName) : baseTarget.stationName,
+    observedValue: liveObserved,
   };
 
-  const actions: Record<string, string> = {
-    temperature: "Trigger autonomous sensor cross-calibration and dispatch AWS crew",
-    humidity: "Initiate internal chamber heating cycle and verify secondary element",
-    pressure: "Compare against adjacent spatial cluster barometer nodes and auto-recalibrate",
-    rainfall: "Execute self-cleaning cycle and cross-validate with Doppler radar",
-    wind_speed: "Test bearing spin torque diagnostic and switch to secondary anemometer",
-  };
+  const isCritical = target.severity === "critical";
+  const isHigh = target.severity === "high";
 
-  const cause = causes[targetAnomaly.parameter] || "Sensor Fault / Calibration Drift";
-  const action = actions[targetAnomaly.parameter] || `Inspect ${targetAnomaly.parameter} sensor / verify communication`;
+  // Dynamic fluctuating confidence
+  const dynamicDelta = (tick % 3 === 0 ? 1 : tick % 3 === 1 ? -1 : 0);
+  const liveConfidence = Math.max(70, Math.min(99, Math.round(target.confidence + dynamicDelta)));
+  const score = (liveConfidence / 100).toFixed(2);
 
-  const sev = targetAnomaly.severity;
-  const badgeStyle =
-    sev === "critical" || isLiveEdgeAnomaly
-      ? { bg: "bg-red-500/10 text-red-400 border-red-500/30", dot: "bg-red-400 shadow-[0_0_8px_#f87171]" }
-      : { bg: "bg-amber-500/10 text-amber-400 border-amber-500/30", dot: "bg-amber-400 shadow-[0_0_8px_#fbbf24]" };
+  const evidence = target.shapFeatures.slice(0, 5).map((f) => ({
+    label: f.feature,
+    level:
+      f.contribution > 0.25 ? "Very High" :
+      f.contribution > 0.15 ? "High" :
+      f.contribution > 0.07 ? "Medium" : "Normal",
+    positive: f.contribution > 0.08,
+  }));
+
+  const sensorHealth = liveConfidence >= 90 ? "DEGRADED" : liveConfidence >= 70 ? "WARNING" : "NOMINAL";
+
+  const probableCause =
+    target.detectionType === "Point spike" ? "Sensor Fault / Electrical Noise" :
+    target.detectionType === "Frozen value" ? "Sensor Freeze / Data Corruption" :
+    target.detectionType === "Sensor drift" ? "Sensor Calibration Drift" :
+    target.detectionType === "Communication gap" ? "Communication / Gateway Failure" :
+    target.detectionType === "Multivariate mismatch" ? "Environmental Inconsistency" :
+    "Sensor Fault / Data Corruption";
+
+  const action =
+    target.detectionType === "Communication gap" ? "Check gateway connection / restart modem" :
+    target.detectionType === "Frozen value" ? "Power-cycle sensor / check firmware" :
+    target.detectionType === "Sensor drift" ? "Recalibrate sensor against reference" :
+    `Inspect ${target.parameter} sensor / verify communication`;
+
+  const bgClass = isCritical
+    ? "bg-gradient-to-r from-red-950/95 to-red-900/90 border-red-500/60"
+    : isHigh
+    ? "bg-gradient-to-r from-amber-950/95 to-amber-900/90 border-amber-500/60"
+    : "bg-gradient-to-r from-blue-950/95 to-blue-900/90 border-blue-500/60";
+
+  const sevBadge = isCritical
+    ? "bg-red-500 text-white"
+    : isHigh
+    ? "bg-amber-500 text-white"
+    : "bg-blue-500 text-white";
+
+  const healthColor = sensorHealth === "DEGRADED" ? "text-red-400" : sensorHealth === "WARNING" ? "text-amber-400" : "text-green-400";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.3 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 shadow-xl text-white p-5"
+      initial={{ opacity: 0, y: -12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+      className={`relative rounded-2xl border-2 p-5 shadow-xl ${bgClass}`}
     >
-      {/* Animated glowing backdrop aura */}
-      <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-600/10 blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-blue-600/10 blur-3xl" />
+      {/* Pulsing glow for critical */}
+      {isCritical && (
+        <div className="pointer-events-none absolute inset-0 rounded-2xl animate-pulse" style={{ boxShadow: "0 0 32px rgba(239,68,68,0.35)" }} />
+      )}
 
-      {/* Top Banner Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/20 border border-red-500/30">
-            <ShieldAlert className="h-5 w-5 text-red-400 animate-pulse" />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-            </span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                Live Anomaly Intelligence Engine
-                <span className="text-xs px-2 py-0.5 rounded-full font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1">
-                  <Sparkles className="h-3 w-3 text-blue-400" /> 5-Layer AI Active
-                </span>
-              </h2>
+      {/* Dismiss */}
+      <button
+        onClick={onDismiss}
+        className="absolute right-3 top-3 rounded-full p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+        aria-label="Dismiss anomaly panel"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_1fr_1fr]">
+        {/* Left: Header + scores */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20">
+              <ShieldAlert className="h-4 w-4 text-red-400" />
             </div>
-            <p className="text-xs text-slate-400">
-              Spatial cross-validation, LightGBM edge scoring & physics boundaries
-            </p>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">STATUS</p>
+              <p className="text-sm font-bold text-red-300 flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                ANOMALY DETECTED
+              </p>
+              <p className="mt-0.5 text-[10px] text-white/40 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Engine Active #{tick} · {new Date().toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Station</span>
+              <span className="text-xs font-semibold text-white">{target.stationName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Anomaly Score</span>
+              <span className="text-sm font-black text-white">{score}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Confidence</span>
+              <span className="text-sm font-bold text-emerald-300">{liveConfidence}%</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Severity</span>
+              <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${sevBadge}`}>
+                {target.severity.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Parameter</span>
+              <span className="text-xs font-semibold text-white capitalize">{target.parameter}</span>
+            </div>
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1">Probable Cause</p>
+            <p className="text-sm font-medium text-amber-200">{probableCause}</p>
           </div>
         </div>
 
-        {/* Live Controls & Badges */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700/60 rounded-lg px-2.5 py-1 text-xs">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                streamConnected ? "bg-emerald-400 animate-ping" : "bg-cyan-400 animate-pulse"
-              }`}
-            />
-            <span className="font-mono text-[11px] text-slate-300">
-              {streamConnected ? "GATEWAY LIVE" : "AI ENGINE LIVE"}
-            </span>
-            <span className="text-slate-500 text-[10px]">#{tick}</span>
+        {/* Middle: Evidence */}
+        <div className="space-y-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Evidence</p>
+          <div className="space-y-2">
+            {evidence.map((e, i) => (
+              <div key={i} className="flex items-center gap-2.5 rounded-lg bg-white/5 px-3 py-2">
+                {e.positive ? (
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                )}
+                <span className="flex-1 text-xs text-white/70 truncate">{e.label}</span>
+                <span className={`text-[10px] font-semibold ${
+                  e.level === "Very High" ? "text-red-400" :
+                  e.level === "High" ? "text-amber-400" :
+                  e.level === "Medium" ? "text-yellow-400" : "text-emerald-400"
+                }`}>{e.level}</span>
+              </div>
+            ))}
           </div>
 
-          <button
-            onClick={() => setIsPaused(!isPaused)}
-            title={isPaused ? "Resume auto-rotation" : "Pause auto-rotation"}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
-          >
-            {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-          </button>
+          {/* Observed vs expected */}
+          <div className="rounded-xl bg-white/5 p-3 space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-white/40">Observed</span>
+              <span className="font-bold text-red-300">{target.observedValue}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/40">Expected Range</span>
+              <span className="text-white/70">{target.expectedRange}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/40">Detection Type</span>
+              <span className="text-white/70">{target.detectionType}</span>
+            </div>
+          </div>
+        </div>
 
-          <button
-            onClick={() => setAnomalyIdx((prev) => (prev + 1) % unresolved.length)}
-            title="Next Anomaly"
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
-          >
-            <SkipForward className="h-3.5 w-3.5" />
-          </button>
+        {/* Right: Sensor health + action */}
+        <div className="space-y-3">
+          <div className="rounded-xl bg-white/5 p-4 text-center">
+            <Cpu className="mx-auto h-8 w-8 text-white/30 mb-2" />
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Sensor Health</p>
+            <p className={`text-xl font-black mt-1 ${healthColor}`}>{sensorHealth}</p>
+          </div>
 
-          <button
-            onClick={onDismiss}
-            title="Dismiss panel"
-            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-white transition"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
+          <div className="rounded-xl bg-amber-500/15 border border-amber-500/30 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Zap className="h-3.5 w-3.5 text-amber-300" />
+              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-300">Recommended Action</p>
+            </div>
+            <p className="text-sm text-amber-100 leading-relaxed">{action}</p>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate(`/anomalies/${target.id}`)}
+              className="flex-1 rounded-xl bg-white/10 hover:bg-white/15 px-3 py-2.5 text-center text-xs font-semibold text-white transition cursor-pointer"
+            >
+              View Full Report
+            </button>
+            <button
+              onClick={onDismiss}
+              className="rounded-xl border border-white/10 bg-transparent px-3 py-2.5 text-xs font-medium text-white/50 hover:text-white transition cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Main Dynamic Grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`${targetAnomaly.id}-${anomalyIdx}`}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
-          transition={{ duration: 0.25 }}
-          className="grid gap-4 md:grid-cols-12 items-center"
-        >
-          {/* Column 1: Station & Severity Info */}
-          <div className="md:col-span-4 space-y-2">
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeStyle.bg}`}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full ${badgeStyle.dot}`} />
-                {targetAnomaly.severity.toUpperCase()} ANOMALY
-              </span>
-              <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
-                {targetAnomaly.stationId}
-              </span>
-            </div>
-
-            <h3 className="text-lg font-bold text-white tracking-tight">{dynamicStation}</h3>
-            <p className="text-xs text-slate-300 line-clamp-1">{targetAnomaly.detectionType} detected</p>
-
-            <div className="pt-1 flex items-center gap-4 text-xs text-slate-400 font-mono">
-              <span>Sensor: <strong className="text-slate-200 capitalize">{displaySensor}</strong></span>
-              <span>•</span>
-              <span>Updated: <strong className="text-slate-200">Just now</strong></span>
-            </div>
-          </div>
-
-          {/* Column 2: Live Metrics & Confidence */}
-          <div className="md:col-span-4 grid grid-cols-2 gap-2 bg-slate-900/60 border border-slate-800 rounded-xl p-3">
-            <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">Observed Reading</p>
-              <p className="text-base font-bold text-red-400 font-mono mt-0.5">{displayObserved}</p>
-              <p className="text-[10px] text-slate-400 mt-1">
-                Expected: <span className="text-emerald-400 font-mono">{displayExpected}</span>
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">AI Confidence</p>
-              <p className="text-base font-bold text-amber-400 font-mono mt-0.5">{dynamicScore.toFixed(1)}%</p>
-              <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-amber-500 to-red-500 h-full rounded-full transition-all duration-500"
-                  style={{ width: `${dynamicScore}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Column 3: AI Diagnosis & CTA */}
-          <div className="md:col-span-4 flex flex-col justify-between h-full space-y-3">
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-2.5 text-xs">
-              <p className="text-slate-400 text-[10px] uppercase font-semibold flex items-center gap-1">
-                <Activity className="h-3 w-3 text-cyan-400" /> Root Cause Diagnosis:
-              </p>
-              <p className="text-slate-200 text-xs mt-1 line-clamp-1">{cause}</p>
-              <p className="text-emerald-400 text-[11px] mt-1 font-medium line-clamp-1">
-                ✓ Rec: {action}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(`/anomalies/${targetAnomaly.id}`)}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white font-medium px-3.5 py-2 rounded-xl text-xs shadow-lg shadow-red-500/20 transition active:scale-95"
-              >
-                <span>View Full Diagnostic Report</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => navigate("/anomalies")}
-                className="inline-flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs border border-slate-700 transition"
-              >
-                All ({unresolved.length})
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
     </motion.div>
   );
 }
@@ -416,7 +403,6 @@ function generateIndia24HourTrends() {
     const hourLabel = `${h.toString().padStart(2, "0")}:00`;
 
     // Diurnal atmospheric curves typical of pan-India composite:
-    // Temperature peaks around 14:00 (31-33°C) and drops at 05:00 (22-24°C)
     const solarFactor = Math.sin(((h - 8) / 24) * 2 * Math.PI);
     const temp = Number((27.5 + 5.2 * solarFactor + Math.sin(i * 1.5) * 0.4).toFixed(1));
 
@@ -682,14 +668,7 @@ function IndiaWeatherAnalytics() {
   );
 }
 
-/** Mean of the readings that resolved; `null` while loading or when none are usable. */
-function averageOf(values: (number | null)[]): number | null {
-  const nums = values.filter((v): v is number => v !== null && Number.isFinite(v));
-  return nums.length ? nums.reduce((a, v) => a + v, 0) / nums.length : null;
-}
-
 export function Overview() {
-  const [hoveredStation, setHoveredStation] = useState<string | null>(null);
   const [showAnomalyPanel, setShowAnomalyPanel] = useState(true);
   const [liveStations, setLiveStations] = useState<StationWithWeather[]>([]);
   const [liveLoading, setLiveLoading] = useState(true);
@@ -795,7 +774,7 @@ export function Overview() {
         />
       </div>
 
-      {/* Big Dynamic Live Anomaly Detection Banner */}
+      {/* Original 3-Column Anomaly Detection Banner (Dynamic) */}
       <AnimatePresence>
         {showAnomalyPanel && (
           <AnomalyDetectionPanel onDismiss={() => setShowAnomalyPanel(false)} />
