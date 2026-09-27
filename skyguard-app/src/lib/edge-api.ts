@@ -146,6 +146,57 @@ export async function fetchNotifyFeed(limit = 50): Promise<NotifyEvent[]> {
   return data?.events ?? [];
 }
 
+/** Get full notification feed with admin email and SMTP status. */
+export async function getNotificationFeed(limit = 50): Promise<{
+  ok: boolean;
+  events: Array<{
+    id: string;
+    time: string;
+    kind: string;
+    severity: string;
+    station: string;
+    subject: string;
+    body: string;
+    email_status: string;
+  }>;
+  admin_email: string;
+  smtp: boolean;
+  error?: string;
+}> {
+  const data = await getJson<{
+    ok: boolean;
+    events?: Array<{
+      id: string;
+      time: string;
+      kind: string;
+      severity: string;
+      station: string;
+      subject: string;
+      body: string;
+      email_status: string;
+    }>;
+    admin_email?: string;
+    smtp?: boolean;
+  }>(`/api/notify/feed?limit=${limit}`);
+  
+  if (!data) {
+    return {
+      ok: false,
+      events: [],
+      admin_email: "",
+      smtp: false,
+      error: "Gateway unreachable",
+    };
+  }
+  
+  return {
+    ok: data.ok,
+    events: data.events ?? [],
+    admin_email: data.admin_email ?? "",
+    smtp: data.smtp ?? false,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Dummy-data simulator (no hardware needed)
 // ---------------------------------------------------------------------------
