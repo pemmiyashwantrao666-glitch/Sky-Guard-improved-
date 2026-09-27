@@ -31,9 +31,11 @@ jobs:
         working-directory: skyguard-app
         run: npm run build
         env:
-          # GitHub Pages serves the app under a repo sub-path; keep asset URLs correct.
+          # GitHub Pages serves the app under a repo sub-path (/<repo-name>/);
+          # derive it from the repository name so the workflow works on every
+          # remote (Sky-Guard-improved-, skyguard-AI, SkyGuard-AI …).
           # (Free Vercel *.vercel.app deploys need no env var — vite.config.ts defaults to "/")
-          VITE_BASE_PATH: /Sky-Guard-improved-/
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
       # Pages has no SPA rewrites; serving index.html as 404.html makes
       # hard refreshes / direct links to sub-routes (e.g. /overview) work.
       - name: Create SPA fallback (404.html)
