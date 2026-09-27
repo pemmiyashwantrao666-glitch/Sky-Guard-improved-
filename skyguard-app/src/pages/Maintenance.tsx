@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Wrench,
   Clock,
@@ -33,6 +34,7 @@ const item = {
 };
 
 export function Maintenance() {
+  const navigate = useNavigate();
   const [priorityFilter, setPriorityFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [stationFilter, setStationFilter] = useState<string>("");
@@ -265,7 +267,10 @@ export function Maintenance() {
                               variant="outline"
                               size="sm"
                               className="h-8 text-xs"
-                              onClick={() => window.open(`/anomalies/${linkedAnomaly.id}`, "_blank", "noopener,noreferrer")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/anomalies/${linkedAnomaly.id}`);
+                              }}
                             >
                               View Anomaly
                             </Button>
